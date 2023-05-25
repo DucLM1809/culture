@@ -54,7 +54,6 @@ app.use('/api/v1/auth', authRouter)
 app.use('/api/v1/jobs', authenticationUser, jobsRouter)
 app.use('/api/v1/shorts', authenticationUser, shortsRouter)
 app.use('/api/v1/posts', authenticationUser, postsRouter)
-
 app.use(notFoundMiddleware)
 app.use(errorHandlerMiddleware)
 

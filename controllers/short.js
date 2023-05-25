@@ -1,10 +1,25 @@
 const Short = require('../models/Short')
 const { StatusCodes } = require('http-status-codes')
 const { BadRequestError, NotFoundError } = require('../errors')
-const getVoteFuncs = require('../utils/funcShortPost')
+const { getVoteFuncs, addVoteParams } = require('../utils/funcShortPost')
 
 // eslint-disable-next-line no-undef
 const distributionDomain = process.env.AWS_DISTRIBUTION_DOMAIN
+
+const getAllShortsOfUser = async (req, res) => {
+  const userId = req.query.userId
+  const requestUser = req.user.userId
+  const rs = await Short.find({
+    createdBy: userId,
+  })
+  if (!rs) {
+    throw new NotFoundError(`No shorts of userId ${userId}`)
+  }
+
+  const jsonRs = rs.map((item) => addVoteParams(item, requestUser, true))
+
+  res.status(StatusCodes.OK).json({ data: jsonRs })
+}
 
 const getShort = async (req, res) => {
   const {
@@ -17,7 +32,7 @@ const getShort = async (req, res) => {
   if (!rs) {
     throw new NotFoundError(`No short with id ${id}`)
   }
-  res.status(StatusCodes.OK).json({ data: rs })
+  res.status(StatusCodes.OK).json({ data: addVoteParams(rs, userId, true) })
 }
 
 const uploadShort = async (req, res) => {
@@ -129,6 +144,7 @@ const viewShort = async (req, res) => {
 const [upvote, disUpvote, downvote, disDownvote] = getVoteFuncs(Short)
 
 module.exports = {
+  getAllShortsOfUser,
   getShort,
   uploadShort,
   updateShortBasic,
