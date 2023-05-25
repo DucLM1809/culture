@@ -12,6 +12,7 @@ const {
   downvote,
   disDownvote,
   viewShort,
+  getAllShortsOfUser,
 } = require('../controllers/short')
 const { uploadFileMs3 } = require('../s3')
 
@@ -24,6 +25,7 @@ router.route('/disupvote/:id').post(disUpvote)
 router.route('/downvote/:id').post(downvote)
 router.route('/disDownvote/:id').post(disDownvote)
 router.route('/view/:id').post(viewShort)
+router.route('/').get(getAllShortsOfUser)
 router.route('/:id').get(getShort)
 
 module.exports = router

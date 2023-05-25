@@ -132,4 +132,24 @@ const getVoteFuncs = (Model) => {
   return [upvote, disUpvote, downvote, disDownvote]
 }
 
-module.exports = getVoteFuncs
+const addVoteParams = (rs, userId, hasViewParam) => {
+  let jsonRs = rs.toObject()
+
+  const userUpvoted = jsonRs.upvotes?.find((uid) => String(uid) === String(userId))
+  const userDownvoted = jsonRs.downvotes?.find((uid) => String(uid) === String(userId))
+  console.log('res: ', userUpvoted)
+  jsonRs = {
+    ...jsonRs,
+    userUpvoted: !!userUpvoted,
+    userDownvoted: !!userDownvoted,
+  }
+
+  if (hasViewParam) {
+    const userViewed = jsonRs.views?.find((uid) => String(uid) === String(userId))
+    jsonRs.userViewed = !!userViewed
+  }
+
+  return jsonRs
+}
+
+module.exports = { getVoteFuncs, addVoteParams }

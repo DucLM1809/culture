@@ -1,10 +1,27 @@
 const Post = require('../models/Post')
 const { StatusCodes } = require('http-status-codes')
 const { BadRequestError, NotFoundError } = require('../errors')
-const getVoteFuncs = require('../utils/funcShortPost')
+const { getVoteFuncs, addVoteParams } = require('../utils/funcShortPost')
 
 // eslint-disable-next-line no-undef
 const distributionDomain = process.env.AWS_DISTRIBUTION_DOMAIN
+
+const [upvote, disUpvote, downvote, disDownvote] = getVoteFuncs(Post)
+
+const getAllPostsOfUser = async (req, res) => {
+  const userId = req.query.userId
+  const requestUser = req.user.userId
+  const rs = await Post.find({
+    createdBy: userId,
+  })
+  if (!rs) {
+    throw new NotFoundError(`No posts of userId ${userId}`)
+  }
+
+  const jsonRs = rs.map((item) => addVoteParams(item, requestUser))
+
+  res.status(StatusCodes.OK).json({ data: jsonRs })
+}
 
 const getPost = async (req, res) => {
   const {
@@ -14,10 +31,13 @@ const getPost = async (req, res) => {
   const rs = await Post.findOne({
     _id: id,
   })
+
   if (!rs) {
     throw new NotFoundError(`No post with id ${id}`)
   }
-  res.status(StatusCodes.OK).json({ data: rs })
+  res.status(StatusCodes.OK).json({
+    data: addVoteParams(rs, userId),
+  })
 }
 
 const getType = (mime) => {
@@ -107,9 +127,8 @@ const deletePost = async (req, res) => {
   res.status(StatusCodes.OK).json()
 }
 
-const [upvote, disUpvote, downvote, disDownvote] = getVoteFuncs(Post)
-
 module.exports = {
+  getAllPostsOfUser,
   getPost,
   uploadPost,
   updatePostBasic,
