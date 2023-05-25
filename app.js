@@ -20,6 +20,8 @@ app.get('/', (req, res) => {
 // routers
 const authRouter = require('./routes/auth')
 const jobsRouter = require('./routes/jobs')
+const shortsRouter = require('./routes/shorts')
+const postsRouter = require('./routes/posts')
 
 // error handler
 const notFoundMiddleware = require('./middleware/not-found')
@@ -50,14 +52,18 @@ app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerDocument))
 
 app.use('/api/v1/auth', authRouter)
 app.use('/api/v1/jobs', authenticationUser, jobsRouter)
+app.use('/api/v1/shorts', authenticationUser, shortsRouter)
+app.use('/api/v1/posts', authenticationUser, postsRouter)
 
 app.use(notFoundMiddleware)
 app.use(errorHandlerMiddleware)
 
+// eslint-disable-next-line no-undef
 const port = process.env.PORT || 5000
 
 const start = async () => {
   try {
+    // eslint-disable-next-line no-undef
     await connectDB(process.env.MONGO_URI)
     app.listen(port, () => console.log(`Server is listening on port ${port}...`))
   } catch (error) {
