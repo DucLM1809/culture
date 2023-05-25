@@ -21,6 +21,7 @@ app.get('/', (req, res) => {
 const authRouter = require('./routes/auth')
 const jobsRouter = require('./routes/jobs')
 const shortsRouter = require('./routes/shorts')
+const postsRouter = require('./routes/posts')
 
 // error handler
 const notFoundMiddleware = require('./middleware/not-found')
@@ -52,6 +53,7 @@ app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerDocument))
 app.use('/api/v1/auth', authRouter)
 app.use('/api/v1/jobs', authenticationUser, jobsRouter)
 app.use('/api/v1/shorts', authenticationUser, shortsRouter)
+app.use('/api/v1/posts', authenticationUser, postsRouter)
 
 app.use(notFoundMiddleware)
 app.use(errorHandlerMiddleware)

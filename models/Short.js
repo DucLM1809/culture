@@ -10,6 +10,30 @@ const ShortSchema = new mongoose.Schema(
       type: Number,
       required: [true, "Please provide short's duration"],
     },
+    description: {
+      type: String,
+    },
+    upvotes: [
+      {
+        type: mongoose.Types.ObjectId,
+        ref: 'User',
+        required: [true, 'Please provide upvote users'],
+      },
+    ],
+    downvotes: [
+      {
+        type: mongoose.Types.ObjectId,
+        ref: 'User',
+        required: [true, 'Please provide downvote users'],
+      },
+    ],
+    views: [
+      {
+        type: mongoose.Types.ObjectId,
+        ref: 'User',
+        required: [true, 'Please provide viewed users'],
+      },
+    ],
     createdBy: {
       type: mongoose.Types.ObjectId,
       ref: 'User',
