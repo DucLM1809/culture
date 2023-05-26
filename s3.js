@@ -18,8 +18,8 @@ aws.config.update({
   region,
   credentials: {
     accessKeyId,
-    secretAccessKey,
-  },
+    secretAccessKey
+  }
 })
 
 const s3 = new aws.S3()
@@ -34,8 +34,8 @@ const uploadFileMs3 = multer({
     },
     key: function (req, file, cb) {
       cb(null, Date.now().toString())
-    },
-  }),
+    }
+  })
 })
 
 const uploadFile = async (file) => {
@@ -44,7 +44,7 @@ const uploadFile = async (file) => {
   const uploadParams = {
     Bucket: bucketName,
     Body: fileStream,
-    Key: file.filename + new Date().toJSON().replace('.', ''),
+    Key: file.filename + new Date().toJSON().replace('.', '')
   }
 
   const res = await s3.upload(uploadParams).promise()
@@ -54,5 +54,5 @@ const uploadFile = async (file) => {
 
 module.exports = {
   uploadFile,
-  uploadFileMs3,
+  uploadFileMs3
 }
