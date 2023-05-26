@@ -1,0 +1,858 @@
+openapi: 3.0.3
+swagger: 2.0
+info:
+  title: vieritage
+  version: 1.0.0
+  contact: {}
+servers:
+  - url: localhost
+  - url: http://localhost
+paths:
+  /api/v1/shorts:
+    get:
+      tags:
+        - shorts
+      summary: Get all shorts of user
+      description: Get all shorts of user
+      operationId: getAllShortsOfUser
+      parameters:
+        - name: userId
+          in: query
+          schema:
+            type: string
+            example: 646ef3637251a0220e25132a
+      responses:
+        '200':
+          description: ''
+  /api/v1/shorts/{id}:
+    get:
+      tags:
+        - shorts
+      summary: Get short
+      description: Get short
+      operationId: getShort
+      parameters:
+        - name: a
+          in: query
+          schema:
+            type: string
+            example: ''
+      responses:
+        '200':
+          description: ''
+  /api/v1/shorts/upload:
+    post:
+      tags:
+        - shorts
+      summary: Upload short
+      description: Upload short
+      operationId: uploadShort
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                duration:
+                  type: string
+                  example: '1234'
+                genres[]:
+                  type: string
+                  example: '["{id}"]'
+                short:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: ''
+  /api/v1/shorts/update-basic/{id}:
+    put:
+      tags:
+        - shorts
+      summary: Update basic
+      description: Update basic
+      operationId: updateBasic
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                description:
+                  type: string
+                  example: Hello world
+                duration:
+                  type: number
+                  example: 120
+            example:
+              description: Hello world
+              duration: 120
+      responses:
+        '200':
+          description: ''
+  /api/v1/shorts/update-with-video/{id}:
+    put:
+      tags:
+        - shorts
+      summary: Update with video
+      description: Update with video
+      operationId: updateWithVideo
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                description:
+                  type: string
+                  example: Hello world az
+                duration:
+                  type: string
+                  example: '12345'
+                short:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: ''
+  /api/v1/shorts/delete/{id}:
+    delete:
+      tags:
+        - shorts
+      summary: Delete
+      description: Delete
+      operationId: delete
+      responses:
+        '200':
+          description: ''
+  /api/v1/shorts/upvote/{id}:
+    post:
+      tags:
+        - shorts
+      summary: Upvote
+      description: Upvote
+      operationId: upvote
+      responses:
+        '200':
+          description: ''
+  /api/v1/shorts/disupvote/{id}:
+    post:
+      tags:
+        - shorts
+      summary: Disupvote
+      description: Disupvote
+      operationId: disupvote
+      responses:
+        '200':
+          description: ''
+  /api/v1/shorts/downvote/{id}:
+    post:
+      tags:
+        - shorts
+      summary: Downvote
+      description: Downvote
+      operationId: downvote
+      responses:
+        '200':
+          description: ''
+  /api/v1/shorts/disdownvote/{id}:
+    post:
+      tags:
+        - shorts
+      summary: Disdownvote
+      description: Disdownvote
+      operationId: disdownvote
+      responses:
+        '200':
+          description: ''
+  /api/v1/shorts/view/{id}:
+    post:
+      tags:
+        - shorts
+      summary: View
+      description: View
+      operationId: view
+      responses:
+        '200':
+          description: ''
+  /api/v1/auth/register:
+    post:
+      tags:
+        - auth
+      summary: Register
+      description: Register
+      operationId: register
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: hdatdragon2@gmail.com
+                name:
+                  type: string
+                  example: Tuan
+                password:
+                  type: string
+                  example: abcd1234
+            example:
+              email: hdatdragon2@gmail.com
+              name: Tuan
+              password: abcd1234
+      responses:
+        '200':
+          description: ''
+  /api/v1/auth/login:
+    post:
+      tags:
+        - auth
+      summary: Login
+      description: Login
+      operationId: login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: hdatdragon2@gmail.com
+                password:
+                  type: string
+                  example: abcd1234
+            example:
+              email: hdatdragon2@gmail.com
+              password: abcd1234
+      responses:
+        '200':
+          description: ''
+  /api/v1/user/me:
+    get:
+      tags:
+        - user
+      summary: Get User Profile
+      description: Get User Profile
+      operationId: getUserProfile1
+      responses:
+        '200':
+          description: ''
+    put:
+      tags:
+        - user
+      summary: Update Profile
+      description: Update Profile
+      operationId: updateProfile1
+      requestBody:
+        content:
+          text/plain:
+            example: "{\r\n    \"avatar\": \"d2xnk96i50sp3r.cloudfront.net/1685087273933\",\r\n}"
+      responses:
+        '200':
+          description: ''
+  /api/v1/file:
+    post:
+      tags:
+        - user
+      summary: Upload File
+      description: Upload File
+      operationId: uploadFile1
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: ''
+  /api/v1/posts:
+    get:
+      tags:
+        - post
+      summary: Get all posts of user
+      description: Get all posts of user
+      operationId: getAllPostsOfUser
+      parameters:
+        - name: userId
+          in: query
+          schema:
+            type: string
+            example: 646ef3637251a0220e25132a
+      responses:
+        '200':
+          description: ''
+  /api/v1/posts/{id}:
+    get:
+      tags:
+        - post
+      summary: Get post
+      description: Get post
+      operationId: getPost
+      parameters:
+        - name: a
+          in: query
+          schema:
+            type: string
+            example: ''
+      responses:
+        '200':
+          description: ''
+  /api/v1/posts/upload:
+    post:
+      tags:
+        - post
+      summary: Upload post
+      description: Upload post
+      operationId: uploadPost
+      parameters:
+        - name: medias
+          in: header
+          schema:
+            type: string
+            example: ''
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+                  example: abc
+                description:
+                  type: string
+                  example: def
+                genres[]:
+                  type: string
+                  example: '["6470048f669d752ca5b40e94", "647004bd669d752ca5b40e96"]'
+                medias:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: ''
+  /api/v1/posts/update-basic/{id}:
+    put:
+      tags:
+        - post
+      summary: Update basic
+      description: Update basic
+      operationId: updateBasic1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+                  example: Masaka
+                description:
+                  type: string
+                  example: Hello world
+                genres:
+                  type: array
+                  items:
+                    type: string
+                    example: 647004bd669d752ca5b40e96
+                  example:
+                    - 647004bd669d752ca5b40e96
+            example:
+              content: Masaka
+              description: Hello world
+              genres:
+                - 647004bd669d752ca5b40e96
+      responses:
+        '200':
+          description: ''
+  /api/v1/posts/update-with-medias/{id}:
+    put:
+      tags:
+        - post
+      summary: Updata with medias
+      description: Updata with medias
+      operationId: updataWithMedias
+      parameters:
+        - name: medias
+          in: header
+          schema:
+            type: string
+            example: ''
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+                  example: Content
+                description:
+                  type: string
+                  example: desciprxza
+                medias:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: ''
+  /api/v1/posts/delete/{id}:
+    delete:
+      tags:
+        - post
+      summary: Delete
+      description: Delete
+      operationId: delete1
+      responses:
+        '200':
+          description: ''
+  /api/v1/posts/upvote/{id}:
+    post:
+      tags:
+        - post
+      summary: Upvote
+      description: Upvote
+      operationId: upvote1
+      responses:
+        '200':
+          description: ''
+  /api/v1/posts/disupvote/{id}:
+    post:
+      tags:
+        - post
+      summary: Disupvote
+      description: Disupvote
+      operationId: disupvote1
+      responses:
+        '200':
+          description: ''
+  /api/v1/posts/downvote/{id}:
+    post:
+      tags:
+        - post
+      summary: Downvote
+      description: Downvote
+      operationId: downvote1
+      responses:
+        '200':
+          description: ''
+  /api/v1/posts/disdownvote/{id}:
+    post:
+      tags:
+        - post
+      summary: Disdownvote
+      description: Disdownvote
+      operationId: disdownvote1
+      responses:
+        '200':
+          description: ''
+  /api/v1/genres:
+    get:
+      tags:
+        - genre
+      summary: Get all genres
+      description: Get all genres
+      operationId: getAllGenres
+      responses:
+        '200':
+          description: ''
+  /api/v1/genres/{id}:
+    get:
+      tags:
+        - genre
+      summary: Get genre
+      description: Get genre
+      operationId: getGenre
+      responses:
+        '200':
+          description: ''
+  /api/v1/genres/create:
+    post:
+      tags:
+        - genre
+      summary: Create genre
+      description: Create genre
+      operationId: createGenre
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Kiến trúc
+            example:
+              name: Kiến trúc
+      responses:
+        '200':
+          description: ''
+  /api/v1/genres/update/{id}:
+    put:
+      tags:
+        - genre
+      summary: Update
+      description: Update
+      operationId: update
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Vũ đạo
+            example:
+              name: Vũ đạo
+      responses:
+        '200':
+          description: ''
+  /api/v1/genres/delete/{id}:
+    delete:
+      tags:
+        - genre
+      summary: Delete
+      description: Delete
+      operationId: delete2
+      responses:
+        '200':
+          description: ''
+  /api/v1/events:
+    get:
+      tags:
+        - events
+      summary: Get All Events
+      description: Get All Events
+      operationId: getAllEvents
+      responses:
+        '200':
+          description: ''
+    post:
+      tags:
+        - events
+      summary: Create Event
+      description: Create Event
+      operationId: createEvent
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                address:
+                  type: string
+                  example: test
+                description:
+                  type: string
+                  example: Test
+                image:
+                  type: string
+                  example: >-
+                    https://thethaiger.com/wp-content/uploads/2019/12/157576372734228-1577336232806628459604.jpg
+                lat:
+                  type: number
+                  example: 10
+                long:
+                  type: number
+                  example: 10
+                title:
+                  type: string
+                  example: Test
+            example:
+              address: test
+              description: Test
+              image: >-
+                https://thethaiger.com/wp-content/uploads/2019/12/157576372734228-1577336232806628459604.jpg
+              lat: 10
+              long: 10
+              title: Test
+      responses:
+        '200':
+          description: ''
+    delete:
+      tags:
+        - events
+      summary: Delete Events Copy
+      description: Delete Events Copy
+      operationId: deleteEventsCopy
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ids:
+                  type: array
+                  items:
+                    type: string
+                    example: 64707353513f605acc873713
+                  example:
+                    - 64707353513f605acc873713
+                    - 64707352513f605acc873711
+            example:
+              ids:
+                - 64707353513f605acc873713
+                - 64707352513f605acc873711
+      responses:
+        '200':
+          description: ''
+  /api/v1/events/{id}:
+    get:
+      tags:
+        - events
+      summary: Get Event
+      description: Get Event
+      operationId: getEvent
+      responses:
+        '200':
+          description: ''
+    put:
+      tags:
+        - events
+      summary: Update Event
+      description: Update Event
+      operationId: updateEvent
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                address:
+                  type: string
+                  example: test 1
+                description:
+                  type: string
+                  example: Test 1
+                image:
+                  type: string
+                  example: >-
+                    https://thethaiger.com/wp-content/uploads/2019/12/157576372734228-1577336232806628459604.jpg
+                lat:
+                  type: number
+                  example: 10.2
+                long:
+                  type: number
+                  example: 10.3
+                title:
+                  type: string
+                  example: Test 1
+            example:
+              address: test 1
+              description: Test 1
+              image: >-
+                https://thethaiger.com/wp-content/uploads/2019/12/157576372734228-1577336232806628459604.jpg
+              lat: 10.2
+              long: 10.3
+              title: Test 1
+      responses:
+        '200':
+          description: ''
+  /api/v1/events/{id}:
+    delete:
+      tags:
+        - events
+      summary: Delete Event
+      description: Delete Event
+      operationId: deleteEvent
+      responses:
+        '200':
+          description: ''
+  /api/v1/questions:
+    get:
+      tags:
+        - questions
+      summary: Get All Questions
+      description: Get All Questions
+      operationId: getAllQuestions
+      responses:
+        '200':
+          description: ''
+    post:
+      tags:
+        - questions
+      summary: Create Question
+      description: Create Question
+      operationId: createQuestion
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                answers:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      isTrue:
+                        type: boolean
+                        example: true
+                      value:
+                        type: string
+                        example: A
+                  example:
+                    - isTrue: true
+                      value: A
+                    - isTrue: false
+                      value: B
+                    - isTrue: false
+                      value: C
+                    - isTrue: false
+                      value: D
+                name:
+                  type: string
+                  example: Question 2
+            example:
+              answers:
+                - isTrue: true
+                  value: A
+                - isTrue: false
+                  value: B
+                - isTrue: false
+                  value: C
+                - isTrue: false
+                  value: D
+              name: Question 2
+      responses:
+        '200':
+          description: ''
+    delete:
+      tags:
+        - questions
+      summary: Delete Questions
+      description: Delete Questions
+      operationId: deleteQuestions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ids:
+                  type: array
+                  items:
+                    type: string
+                    example: 64708610c4536925b03f3c16
+                  example:
+                    - 64708610c4536925b03f3c16
+                    - 64708613c4536925b03f3c1c
+            example:
+              ids:
+                - 64708610c4536925b03f3c16
+                - 64708613c4536925b03f3c1c
+      responses:
+        '200':
+          description: ''
+  /api/v1/questions/{id}:
+    put:
+      tags:
+        - questions
+      summary: Update Question
+      description: Update Question
+      operationId: updateQuestion
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                answers:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      isTrue:
+                        type: boolean
+                        example: false
+                      value:
+                        type: string
+                        example: A
+                  example:
+                    - isTrue: false
+                      value: A
+                    - isTrue: true
+                      value: B
+                    - isTrue: false
+                      value: C
+                    - isTrue: false
+                      value: D
+                name:
+                  type: string
+                  example: Question 1
+            example:
+              answers:
+                - isTrue: false
+                  value: A
+                - isTrue: true
+                  value: B
+                - isTrue: false
+                  value: C
+                - isTrue: false
+                  value: D
+              name: Question 1
+      responses:
+        '200':
+          description: ''
+  /api/v1/questions/{id}:
+    delete:
+      tags:
+        - questions
+      summary: Delete Question
+      description: Delete Question
+      operationId: deleteQuestion
+      responses:
+        '200':
+          description: ''
+  /api/v1/questions/{id}/answer/{answerId}:
+    put:
+      tags:
+        - questions
+      summary: Answer Question
+      description: Answer Question
+      operationId: answerQuestion
+      responses:
+        '200':
+          description: ''
+  /api/v1/questions/random:
+    get:
+      tags:
+        - questions
+      summary: Get Random Question
+      description: Get Random Question
+      operationId: getRandomQuestion
+      responses:
+        '200':
+          description: ''
+  /hello:
+    get:
+      summary: test
+      description: test
+      operationId: test
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                ab:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: ''
+tags:
+  - name: shorts
+  - name: auth
+  - name: post
+  - name: genre
+  - name: events
+  - name: user
+  - name: questions
