@@ -1,5 +1,7 @@
 const Post = require('../models/Post')
 const Genre = require('../models/Genre')
+const User = require('../models/User')
+const mongoose = require('mongoose')
 const { StatusCodes } = require('http-status-codes')
 const { BadRequestError, NotFoundError } = require('../errors')
 const { getVoteFuncs, addVoteParams, checkDuplicateGenre } = require('../utils/funcShortPost')
@@ -9,12 +11,50 @@ const distributionDomain = process.env.AWS_DISTRIBUTION_DOMAIN
 
 const [upvote, disUpvote, downvote, disDownvote] = getVoteFuncs(Post)
 
+const ObjectId = mongoose.Types.ObjectId
+
 const getAllPostsOfUser = async (req, res) => {
   const userId = req.query.userId
   const requestUser = req.user.userId
-  const rs = await Post.find({
-    createdBy: userId,
-  })
+  const rs = await Post.aggregate([
+    {
+      $match: {
+        createdBy: ObjectId(userId),
+      },
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'createdBy',
+        foreignField: '_id',
+        as: 'createdUser',
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        content: 1,
+        medias: 1,
+        createdBy: 1,
+        description: 1,
+        createdAt: 1,
+        updatedAt: 1,
+        __v: 1,
+        upvotes: 1,
+        downvotes: 1,
+        'createdUser.role': 1,
+        'createdUser._id': 1,
+        'createdUser.name': 1,
+        'createdUser.email': 1,
+        'createdUser.avatar': 1,
+      },
+    },
+    {
+      $unwind: {
+        path: '$createdUser',
+      },
+    },
+  ])
   if (!rs) {
     throw new NotFoundError(`No posts of userId ${userId}`)
   }
@@ -29,15 +69,54 @@ const getPost = async (req, res) => {
     user: { userId },
     params: { id },
   } = req
-  const rs = await Post.findOne({
-    _id: id,
-  })
+  const rs = await Post.aggregate([
+    {
+      $match: {
+        _id: ObjectId(id),
+      },
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'createdBy',
+        foreignField: '_id',
+        as: 'createdUser',
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        content: 1,
+        medias: 1,
+        createdBy: 1,
+        description: 1,
+        createdAt: 1,
+        updatedAt: 1,
+        __v: 1,
+        upvotes: 1,
+        downvotes: 1,
+        'createdUser.role': 1,
+        'createdUser._id': 1,
+        'createdUser.name': 1,
+        'createdUser.email': 1,
+        'createdUser.avatar': 1,
+      },
+    },
+    {
+      $limit: 1,
+    },
+    {
+      $unwind: {
+        path: '$createdUser',
+      },
+    },
+  ])
 
   if (!rs) {
     throw new NotFoundError(`No post with id ${id}`)
   }
   res.status(StatusCodes.OK).json({
-    data: addVoteParams(rs, userId),
+    data: addVoteParams(rs[0], userId),
   })
 }
 
@@ -81,7 +160,7 @@ const uploadPost = async (req, res) => {
   const { description, content } = req.body
   const medias = getMedias(req.files)
   const createdBy = req.user.userId
-  const genres = req.body.genres
+  const genres = JSON.parse(req.body.genres || '')
   const data = {
     content,
     medias,
@@ -92,8 +171,22 @@ const uploadPost = async (req, res) => {
   await validatePost(data)
 
   const rs = await Post.create(data)
+  const createdUser = await User.findOne(
+    {
+      _id: createdBy,
+    },
+    {
+      role: 1,
+      _id: 1,
+      name: 1,
+      email: 1,
+      avatar: 1,
+    }
+  )
+  const jsonRs = JSON.parse(JSON.stringify(rs))
+  jsonRs.createdUser = JSON.parse(JSON.stringify(createdUser))
 
-  res.status(StatusCodes.CREATED).json({ data: rs })
+  res.status(StatusCodes.CREATED).json({ data: jsonRs })
 }
 
 const updatePostWithMedias = async (req, res) => {
@@ -101,7 +194,7 @@ const updatePostWithMedias = async (req, res) => {
   const { description, content } = req.body
   const medias = getMedias(req.files)
   const userId = req.user.userId
-  const genres = req.body.genres
+  const genres = JSON.parse(req.body.genres || '')
   const data = {
     content,
     medias,
@@ -119,7 +212,7 @@ const updatePostBasic = async (req, res) => {
   const id = req.params.id
   const { description, content } = req.body
   const userId = req.user.userId
-  const genres = req.body.genres
+  const genres = JSON.parse(req.body.genres || '')
   const data = {
     content,
     genres,
