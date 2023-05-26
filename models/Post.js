@@ -2,6 +2,10 @@ const mongoose = require('mongoose')
 
 const PostSchema = new mongoose.Schema(
   {
+    checked: {
+      type: Boolean,
+      default: false,
+    },
     medias: [
       {
         url: String,

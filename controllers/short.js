@@ -6,6 +6,7 @@ const ObjectId = require('mongoose').Types.ObjectId
 const { StatusCodes } = require('http-status-codes')
 const { BadRequestError, NotFoundError } = require('../errors')
 const { getVoteFuncs, addVoteParams, checkDuplicateGenre } = require('../utils/funcShortPost')
+const { addRecomShort, updateRecomShort, deleteRecom } = require('../recombee')
 
 // eslint-disable-next-line no-undef
 const distributionDomain = process.env.AWS_DISTRIBUTION_DOMAIN
@@ -25,6 +26,14 @@ const getAllShortsOfUser = async (req, res) => {
         localField: 'createdBy',
         foreignField: '_id',
         as: 'createdUser',
+      },
+    },
+    {
+      $lookup: {
+        from: 'genres',
+        localField: 'genres',
+        foreignField: '_id',
+        as: 'queryGenres',
       },
     },
     {
@@ -87,33 +96,38 @@ const uploadShort = async (req, res) => {
   const description = req.body.description
   const url = distributionDomain + '/' + req.file.key
   const createdBy = req.user.userId
-  const genres = JSON.parse(req.body.genres || '')
-
-  checkDuplicateGenre(genres)
+  let genres
+  try {
+    genres = JSON.parse(req.body.genres || '')
+  } catch (error) {
+    genres = req.body.genres || ''
+  }
+  // checkDuplicateGenre(genres)
 
   if (!duration) {
     throw new BadRequestError('Duration field cannot be empty')
   }
 
+  let queryGenres
   if (!Array.isArray(genres) || genres.length == 0) {
     throw new BadRequestError('Specify at least 1 genre')
   } else {
-    genres.forEach(async (genreId) => {
-      const r = await Genre.findOne({
-        _id: genreId,
-      })
-      if (!r) {
-        throw new BadRequestError(`Genre id is invalid ${genreId}`)
-      }
-    })
+    queryGenres = await Genre.find({ _id: genres })
+
+    if (queryGenres.length !== genres.length) {
+      throw new BadRequestError(`Genre id is invalid or duplicate`)
+    }
   }
-  const rs = await Short.create({
+
+  const data = {
     duration,
     url,
     createdBy,
     genres,
     description,
-  })
+  }
+
+  const rs = await Short.create(data)
   const createdUser = await User.findOne(
     {
       _id: createdBy,
@@ -128,6 +142,9 @@ const uploadShort = async (req, res) => {
   )
   const jsonRs = JSON.parse(JSON.stringify(rs))
   jsonRs.createdUser = JSON.parse(JSON.stringify(createdUser))
+  jsonRs.queryGenres = queryGenres
+
+  addRecomShort(jsonRs._id, { ...data, genres: queryGenres })
 
   res.status(StatusCodes.CREATED).json({ data: jsonRs })
 }
@@ -138,21 +155,24 @@ const updateShortWithVideo = async (req, res) => {
   const description = req.body.description
   const url = distributionDomain + '/' + req.file.key
   const userId = req.user.userId
-  const genres = JSON.parse(req.body.genres || '')
+  let genres
+  try {
+    genres = JSON.parse(req.body.genres || '')
+  } catch (error) {
+    genres = req.body.genres || ''
+  }
 
-  checkDuplicateGenre(genres)
+  // checkDuplicateGenre(genres)
 
+  let queryGenres
   if (!Array.isArray(genres) || genres.length == 0) {
     throw new BadRequestError('Specify at least 1 genre')
   } else {
-    genres.forEach(async (genreId) => {
-      const r = await Genre.findOne({
-        _id: genreId,
-      })
-      if (!r) {
-        throw new BadRequestError(`Genre id is invalid ${genreId}`)
-      }
-    })
+    queryGenres = await Genre.find({ _id: genres })
+
+    if (queryGenres.length !== genres.length) {
+      throw new BadRequestError(`Genre id is invalid or duplicate`)
+    }
   }
 
   if (!duration) {
@@ -167,7 +187,10 @@ const updateShortWithVideo = async (req, res) => {
   }
 
   const rs = await Short.findByIdAndUpdate({ _id: id, createdBy: userId }, data, { new: true, runValidators: true })
-
+  updateRecomShort(id, {
+    ...data,
+    genres: queryGenres,
+  })
   res.status(StatusCodes.OK).json({ data: rs })
 }
 
@@ -176,24 +199,27 @@ const updateShortBasic = async (req, res) => {
   const duration = Number(req.body.duration)
   const description = req.body.description
   const userId = req.user.userId
-  const genres = JSON.parse(req.body.genres || '')
+  let genres
+  try {
+    genres = JSON.parse(req.body.genres || '')
+  } catch (error) {
+    genres = req.body.genres || ''
+  }
   if (!duration) {
     throw new BadRequestError('Duration field cannot be empty')
   }
 
-  checkDuplicateGenre(genres)
+  // checkDuplicateGenre(genres)
 
+  let queryGenres
   if (!Array.isArray(genres) || genres.length == 0) {
     throw new BadRequestError('Specify at least 1 genre')
   } else {
-    genres.forEach(async (genreId) => {
-      const r = await Genre.findOne({
-        _id: genreId,
-      })
-      if (!r) {
-        throw new BadRequestError(`Genre id is invalid ${genreId}`)
-      }
-    })
+    queryGenres = await Genre.find({ _id: genres })
+
+    if (queryGenres.length !== genres.length) {
+      throw new BadRequestError(`Genre id is invalid or duplicate`)
+    }
   }
 
   const data = {
@@ -203,6 +229,10 @@ const updateShortBasic = async (req, res) => {
   }
 
   const rs = await Short.findByIdAndUpdate({ _id: id, createdBy: userId }, data, { new: true, runValidators: true })
+  updateRecomShort(id, {
+    ...data,
+    genres: queryGenres,
+  })
   res.status(StatusCodes.OK).json({ data: rs })
 }
 
@@ -220,6 +250,7 @@ const deleteShort = async (req, res) => {
   if (!rs) {
     throw new NotFoundError(`No short with id ${id}`)
   }
+  deleteRecom(id)
   res.status(StatusCodes.OK).json()
 }
 

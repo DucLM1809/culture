@@ -2,6 +2,10 @@ const mongoose = require('mongoose')
 
 const ShortSchema = new mongoose.Schema(
   {
+    checked: {
+      type: Boolean,
+      default: false,
+    },
     url: {
       type: String,
       required: [true, 'Please provide url'],
