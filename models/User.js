@@ -27,6 +27,10 @@ const UserSchema = new mongoose.Schema({
     type: String,
     default: 'USER',
   },
+  dob: {
+    type: Date,
+    required: [true, 'Please provide dob'],
+  },
 })
 
 UserSchema.pre('save', async function () {

@@ -5,6 +5,7 @@ const mongoose = require('mongoose')
 const { StatusCodes } = require('http-status-codes')
 const { BadRequestError, NotFoundError } = require('../errors')
 const { getVoteFuncs, addVoteParams, checkDuplicateGenre } = require('../utils/funcShortPost')
+const { addRecomPost, deleteRecom, updateRecomPost } = require('../recombee')
 
 // eslint-disable-next-line no-undef
 const distributionDomain = process.env.AWS_DISTRIBUTION_DOMAIN
@@ -31,23 +32,15 @@ const getAllPostsOfUser = async (req, res) => {
       },
     },
     {
-      $project: {
-        _id: 1,
-        content: 1,
-        medias: 1,
-        createdBy: 1,
-        description: 1,
-        createdAt: 1,
-        updatedAt: 1,
-        __v: 1,
-        upvotes: 1,
-        downvotes: 1,
-        'createdUser.role': 1,
-        'createdUser._id': 1,
-        'createdUser.name': 1,
-        'createdUser.email': 1,
-        'createdUser.avatar': 1,
+      $lookup: {
+        from: 'genres',
+        localField: 'genres',
+        foreignField: '_id',
+        as: 'queryGenres',
       },
+    },
+    {
+      $unset: 'createdUser.password',
     },
     {
       $unwind: {
@@ -141,26 +134,30 @@ const validatePost = async (data) => {
     throw new BadRequestError('Content field cannot be empty')
   }
 
+  let queryGenres
   if (!Array.isArray(data.genres) || data.genres.length == 0) {
     throw new BadRequestError('Specify at least 1 genre')
   } else {
-    data.genres.forEach(async (genreId) => {
-      const r = await Genre.findOne({
-        _id: genreId,
-      })
-      if (!r) {
-        throw new BadRequestError(`Genre id is invalid ${genreId}`)
-      }
-    })
-    checkDuplicateGenre(data.genres)
+    queryGenres = await Genre.find({ _id: data.genres })
+
+    if (queryGenres.length !== data.genres.length) {
+      throw new BadRequestError(`Genre is invalid or duplicate`)
+    }
   }
+
+  return queryGenres
 }
 
 const uploadPost = async (req, res) => {
   const { description, content } = req.body
   const medias = getMedias(req.files)
   const createdBy = req.user.userId
-  const genres = JSON.parse(req.body.genres || '')
+  let genres
+  try {
+    genres = JSON.parse(req.body.genres || '')
+  } catch (error) {
+    genres = req.body.genres || ''
+  }
   const data = {
     content,
     medias,
@@ -168,7 +165,7 @@ const uploadPost = async (req, res) => {
     genres,
     description,
   }
-  await validatePost(data)
+  const queryGenres = await validatePost(data)
 
   const rs = await Post.create(data)
   const createdUser = await User.findOne(
@@ -185,6 +182,11 @@ const uploadPost = async (req, res) => {
   )
   const jsonRs = JSON.parse(JSON.stringify(rs))
   jsonRs.createdUser = JSON.parse(JSON.stringify(createdUser))
+  jsonRs.queryGenres = queryGenres
+  addRecomPost(jsonRs._id, {
+    ...data,
+    genres: queryGenres,
+  })
 
   res.status(StatusCodes.CREATED).json({ data: jsonRs })
 }
@@ -194,17 +196,25 @@ const updatePostWithMedias = async (req, res) => {
   const { description, content } = req.body
   const medias = getMedias(req.files)
   const userId = req.user.userId
-  const genres = JSON.parse(req.body.genres || '')
+  let genres
+  try {
+    genres = JSON.parse(req.body.genres || '')
+  } catch (error) {
+    genres = req.body.genres || ''
+  }
   const data = {
     content,
     medias,
     genres,
     description,
   }
-  await validatePost(data)
+  const queryGenres = await validatePost(data)
 
   const rs = await Post.findByIdAndUpdate({ _id: id, createdBy: userId }, data, { new: true, runValidators: true })
-
+  updateRecomPost(id, {
+    ...data,
+    genres: queryGenres,
+  })
   res.status(StatusCodes.OK).json({ data: rs })
 }
 
@@ -212,15 +222,24 @@ const updatePostBasic = async (req, res) => {
   const id = req.params.id
   const { description, content } = req.body
   const userId = req.user.userId
-  const genres = JSON.parse(req.body.genres || '')
+  let genres
+  try {
+    genres = JSON.parse(req.body.genres || '')
+  } catch (error) {
+    genres = req.body.genres || ''
+  }
   const data = {
     content,
     genres,
     description,
   }
-  await validatePost(data)
+  const queryGenres = await validatePost(data)
 
   const rs = await Post.findByIdAndUpdate({ _id: id, createdBy: userId }, data, { new: true, runValidators: true })
+  updateRecomPost(id, {
+    ...data,
+    genres: queryGenres,
+  })
   res.status(StatusCodes.OK).json({ data: rs })
 }
 
@@ -230,10 +249,15 @@ const deletePost = async (req, res) => {
     params: { id },
   } = req
 
-  await Post.findByIdAndRemove({
+  const rs = await Post.findByIdAndRemove({
     _id: id,
     createdBy: userId,
   })
+
+  if (!rs) {
+    throw new NotFoundError(`No post with id ${id}`)
+  }
+  deleteRecom(id)
 
   res.status(StatusCodes.OK).json()
 }
