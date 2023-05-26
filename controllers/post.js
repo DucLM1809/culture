@@ -1,7 +1,8 @@
 const Post = require('../models/Post')
+const Genre = require('../models/Genre')
 const { StatusCodes } = require('http-status-codes')
 const { BadRequestError, NotFoundError } = require('../errors')
-const { getVoteFuncs, addVoteParams } = require('../utils/funcShortPost')
+const { getVoteFuncs, addVoteParams, checkDuplicateGenre } = require('../utils/funcShortPost')
 
 // eslint-disable-next-line no-undef
 const distributionDomain = process.env.AWS_DISTRIBUTION_DOMAIN
@@ -48,28 +49,49 @@ const getType = (mime) => {
 }
 
 const getMedias = (files) => {
-  return files.map((item) => ({
-    url: distributionDomain + '/' + item.key,
-    type: getType(item.mimetype),
-  }))
+  return Array.isArray(files)
+    ? files.map((item) => ({
+        url: distributionDomain + '/' + item.key,
+        type: getType(item.mimetype),
+      }))
+    : null
+}
+
+const validatePost = async (data) => {
+  if (!data.content) {
+    throw new BadRequestError('Content field cannot be empty')
+  }
+
+  if (!Array.isArray(data.genres) || data.genres.length == 0) {
+    throw new BadRequestError('Specify at least 1 genre')
+  } else {
+    data.genres.forEach(async (genreId) => {
+      const r = await Genre.findOne({
+        _id: genreId,
+      })
+      if (!r) {
+        throw new BadRequestError(`Genre id is invalid ${genreId}`)
+      }
+    })
+    checkDuplicateGenre(data.genres)
+  }
 }
 
 const uploadPost = async (req, res) => {
   const { description, content } = req.body
   const medias = getMedias(req.files)
-  console.log(medias)
   const createdBy = req.user.userId
-
-  if (!content) {
-    throw new BadRequestError('Content field cannot be empty')
-  }
-
-  const rs = await Post.create({
+  const genres = req.body.genres
+  const data = {
     content,
     medias,
     createdBy,
+    genres,
     description,
-  })
+  }
+  await validatePost(data)
+
+  const rs = await Post.create(data)
 
   res.status(StatusCodes.CREATED).json({ data: rs })
 }
@@ -79,16 +101,14 @@ const updatePostWithMedias = async (req, res) => {
   const { description, content } = req.body
   const medias = getMedias(req.files)
   const userId = req.user.userId
-
-  if (!content) {
-    throw new BadRequestError('Content field cannot be empty')
-  }
-
+  const genres = req.body.genres
   const data = {
     content,
     medias,
+    genres,
     description,
   }
+  await validatePost(data)
 
   const rs = await Post.findByIdAndUpdate({ _id: id, createdBy: userId }, data, { new: true, runValidators: true })
 
@@ -99,15 +119,13 @@ const updatePostBasic = async (req, res) => {
   const id = req.params.id
   const { description, content } = req.body
   const userId = req.user.userId
-
-  if (!content) {
-    throw new BadRequestError('Content field cannot be empty')
-  }
-
+  const genres = req.body.genres
   const data = {
     content,
+    genres,
     description,
   }
+  await validatePost(data)
 
   const rs = await Post.findByIdAndUpdate({ _id: id, createdBy: userId }, data, { new: true, runValidators: true })
   res.status(StatusCodes.OK).json({ data: rs })

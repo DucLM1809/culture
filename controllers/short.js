@@ -1,7 +1,8 @@
 const Short = require('../models/Short')
+const Genre = require('../models/Genre')
 const { StatusCodes } = require('http-status-codes')
 const { BadRequestError, NotFoundError } = require('../errors')
-const { getVoteFuncs, addVoteParams } = require('../utils/funcShortPost')
+const { getVoteFuncs, addVoteParams, checkDuplicateGenre } = require('../utils/funcShortPost')
 
 // eslint-disable-next-line no-undef
 const distributionDomain = process.env.AWS_DISTRIBUTION_DOMAIN
@@ -40,11 +41,31 @@ const uploadShort = async (req, res) => {
   const description = req.body.description
   const url = distributionDomain + '/' + req.file.key
   const createdBy = req.user.userId
+  const genres = JSON.parse(req.body.genres || '')
 
+  checkDuplicateGenre(genres)
+
+  if (!duration) {
+    throw new BadRequestError('Duration field cannot be empty')
+  }
+
+  if (!Array.isArray(genres) || genres.length == 0) {
+    throw new BadRequestError('Specify at least 1 genre')
+  } else {
+    genres.forEach(async (genreId) => {
+      const r = await Genre.findOne({
+        _id: genreId,
+      })
+      if (!r) {
+        throw new BadRequestError(`Genre id is invalid ${genreId}`)
+      }
+    })
+  }
   const rs = await Short.create({
     duration,
     url,
     createdBy,
+    genres,
     description,
   })
 
@@ -57,6 +78,22 @@ const updateShortWithVideo = async (req, res) => {
   const description = req.body.description
   const url = distributionDomain + '/' + req.file.key
   const userId = req.user.userId
+  const genres = JSON.parse(req.body.genres || '')
+
+  checkDuplicateGenre(genres)
+
+  if (!Array.isArray(genres) || genres.length == 0) {
+    throw new BadRequestError('Specify at least 1 genre')
+  } else {
+    genres.forEach(async (genreId) => {
+      const r = await Genre.findOne({
+        _id: genreId,
+      })
+      if (!r) {
+        throw new BadRequestError(`Genre id is invalid ${genreId}`)
+      }
+    })
+  }
 
   if (!duration) {
     throw new BadRequestError('Duration field cannot be empty')
@@ -65,6 +102,7 @@ const updateShortWithVideo = async (req, res) => {
   const data = {
     duration,
     url,
+    genres,
     description,
   }
 
@@ -78,14 +116,31 @@ const updateShortBasic = async (req, res) => {
   const duration = Number(req.body.duration)
   const description = req.body.description
   const userId = req.user.userId
-
   if (!duration) {
     throw new BadRequestError('Duration field cannot be empty')
+  }
+
+  checkDuplicateGenre(genres)
+
+  const genres = JSON.parse(req.body.genres || '')
+
+  if (!Array.isArray(genres) || genres.length == 0) {
+    throw new BadRequestError('Specify at least 1 genre')
+  } else {
+    genres.forEach(async (genreId) => {
+      const r = await Genre.findOne({
+        _id: genreId,
+      })
+      if (!r) {
+        throw new BadRequestError(`Genre id is invalid ${genreId}`)
+      }
+    })
   }
 
   const data = {
     duration,
     description,
+    genres,
   }
 
   const rs = await Short.findByIdAndUpdate({ _id: id, createdBy: userId }, data, { new: true, runValidators: true })
