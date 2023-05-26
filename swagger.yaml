@@ -5,11 +5,18 @@ info:
   version: 1.0.0
   contact: {}
 servers:
-  - url: localhost
-  - url: http://localhost
+  - url: http://localhost:5000
+components:
+ securitySchemes:
+  bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
 paths:
   /api/v1/shorts:
     get:
+      security:
+         - bearerAuth: []
       tags:
         - shorts
       summary: Get all shorts of user
@@ -26,6 +33,8 @@ paths:
           description: ''
   /api/v1/shorts/{id}:
     get:
+      security:
+         - bearerAuth: []
       tags:
         - shorts
       summary: Get short
@@ -42,6 +51,8 @@ paths:
           description: ''
   /api/v1/shorts/upload:
     post:
+      security:
+         - bearerAuth: []
       tags:
         - shorts
       summary: Upload short
@@ -67,6 +78,8 @@ paths:
           description: ''
   /api/v1/shorts/update-basic/{id}:
     put:
+      security:
+         - bearerAuth: []
       tags:
         - shorts
       summary: Update basic
@@ -92,6 +105,8 @@ paths:
           description: ''
   /api/v1/shorts/update-with-video/{id}:
     put:
+      security:
+         - bearerAuth: []
       tags:
         - shorts
       summary: Update with video
@@ -116,6 +131,8 @@ paths:
         '200':
           description: ''
   /api/v1/shorts/delete/{id}:
+    security:
+         - bearerAuth: []
     delete:
       tags:
         - shorts
@@ -127,6 +144,8 @@ paths:
           description: ''
   /api/v1/shorts/upvote/{id}:
     post:
+      security:
+         - bearerAuth: []
       tags:
         - shorts
       summary: Upvote
@@ -137,6 +156,8 @@ paths:
           description: ''
   /api/v1/shorts/disupvote/{id}:
     post:
+      security:
+         - bearerAuth: []
       tags:
         - shorts
       summary: Disupvote
@@ -147,6 +168,8 @@ paths:
           description: ''
   /api/v1/shorts/downvote/{id}:
     post:
+      security:
+         - bearerAuth: []
       tags:
         - shorts
       summary: Downvote
@@ -157,6 +180,8 @@ paths:
           description: ''
   /api/v1/shorts/disdownvote/{id}:
     post:
+      security:
+         - bearerAuth: []
       tags:
         - shorts
       summary: Disdownvote
@@ -167,6 +192,8 @@ paths:
           description: ''
   /api/v1/shorts/view/{id}:
     post:
+      security:
+         - bearerAuth: []
       tags:
         - shorts
       summary: View
@@ -231,6 +258,8 @@ paths:
           description: ''
   /api/v1/user/me:
     get:
+      security:
+         - bearerAuth: []
       tags:
         - user
       summary: Get User Profile
@@ -240,6 +269,8 @@ paths:
         '200':
           description: ''
     put:
+      security:
+         - bearerAuth: []
       tags:
         - user
       summary: Update Profile
@@ -273,6 +304,8 @@ paths:
           description: ''
   /api/v1/posts:
     get:
+      security:
+         - bearerAuth: []
       tags:
         - post
       summary: Get all posts of user
@@ -289,6 +322,8 @@ paths:
           description: ''
   /api/v1/posts/{id}:
     get:
+      security:
+         - bearerAuth: []
       tags:
         - post
       summary: Get post
@@ -305,6 +340,8 @@ paths:
           description: ''
   /api/v1/posts/upload:
     post:
+      security:
+         - bearerAuth: []
       tags:
         - post
       summary: Upload post
@@ -339,6 +376,8 @@ paths:
           description: ''
   /api/v1/posts/update-basic/{id}:
     put:
+      security:
+         - bearerAuth: []
       tags:
         - post
       summary: Update basic
@@ -373,6 +412,8 @@ paths:
           description: ''
   /api/v1/posts/update-with-medias/{id}:
     put:
+      security:
+         - bearerAuth: []
       tags:
         - post
       summary: Updata with medias
@@ -404,6 +445,8 @@ paths:
           description: ''
   /api/v1/posts/delete/{id}:
     delete:
+      security:
+         - bearerAuth: []
       tags:
         - post
       summary: Delete
@@ -414,6 +457,8 @@ paths:
           description: ''
   /api/v1/posts/upvote/{id}:
     post:
+      security:
+        - bearerAuth: []
       tags:
         - post
       summary: Upvote
@@ -424,6 +469,8 @@ paths:
           description: ''
   /api/v1/posts/disupvote/{id}:
     post:
+      security:
+         - bearerAuth: []
       tags:
         - post
       summary: Disupvote
@@ -434,6 +481,8 @@ paths:
           description: ''
   /api/v1/posts/downvote/{id}:
     post:
+      security:
+         - bearerAuth: []
       tags:
         - post
       summary: Downvote
@@ -444,6 +493,8 @@ paths:
           description: ''
   /api/v1/posts/disdownvote/{id}:
     post:
+      security:
+         - bearerAuth: []
       tags:
         - post
       summary: Disdownvote
@@ -454,6 +505,8 @@ paths:
           description: ''
   /api/v1/genres:
     get:
+      security:
+         - bearerAuth: []
       tags:
         - genre
       summary: Get all genres
@@ -464,6 +517,8 @@ paths:
           description: ''
   /api/v1/genres/{id}:
     get:
+      security:
+         - bearerAuth: []
       tags:
         - genre
       summary: Get genre
@@ -474,6 +529,8 @@ paths:
           description: ''
   /api/v1/genres/create:
     post:
+      security:
+         - bearerAuth: []
       tags:
         - genre
       summary: Create genre
@@ -495,6 +552,8 @@ paths:
           description: ''
   /api/v1/genres/update/{id}:
     put:
+      security:
+         - bearerAuth: []
       tags:
         - genre
       summary: Update
@@ -516,6 +575,8 @@ paths:
           description: ''
   /api/v1/genres/delete/{id}:
     delete:
+      security:
+         - bearerAuth: []
       tags:
         - genre
       summary: Delete
@@ -526,6 +587,8 @@ paths:
           description: ''
   /api/v1/events:
     get:
+      security:
+         - bearerAuth: []
       tags:
         - events
       summary: Get All Events
@@ -535,6 +598,8 @@ paths:
         '200':
           description: ''
     post:
+      security:
+         - bearerAuth: []
       tags:
         - events
       summary: Create Event
@@ -577,6 +642,8 @@ paths:
         '200':
           description: ''
     delete:
+      security:
+         - bearerAuth: []
       tags:
         - events
       summary: Delete Events Copy
@@ -605,6 +672,8 @@ paths:
           description: ''
   /api/v1/events/{id}:
     get:
+      security:
+         - bearerAuth: []
       tags:
         - events
       summary: Get Event
@@ -614,6 +683,8 @@ paths:
         '200':
           description: ''
     put:
+      security:
+         - bearerAuth: []
       tags:
         - events
       summary: Update Event
@@ -657,6 +728,8 @@ paths:
           description: ''
   /api/v1/events/{id}:
     delete:
+      security:
+         - bearerAuth: []
       tags:
         - events
       summary: Delete Event
@@ -667,6 +740,8 @@ paths:
           description: ''
   /api/v1/questions:
     get:
+      security:
+         - bearerAuth: []
       tags:
         - questions
       summary: Get All Questions
@@ -676,6 +751,8 @@ paths:
         '200':
           description: ''
     post:
+      security:
+         - bearerAuth: []
       tags:
         - questions
       summary: Create Question
@@ -725,6 +802,8 @@ paths:
         '200':
           description: ''
     delete:
+      security:
+         - bearerAuth: []
       tags:
         - questions
       summary: Delete Questions
@@ -753,6 +832,8 @@ paths:
           description: ''
   /api/v1/questions/{id}:
     put:
+      security:
+         - bearerAuth: []
       tags:
         - questions
       summary: Update Question
@@ -803,6 +884,8 @@ paths:
           description: ''
   /api/v1/questions/{id}:
     delete:
+      security:
+         - bearerAuth: []
       tags:
         - questions
       summary: Delete Question
@@ -823,6 +906,8 @@ paths:
           description: ''
   /api/v1/questions/random:
     get:
+      security:
+         - bearerAuth: []
       tags:
         - questions
       summary: Get Random Question
@@ -833,6 +918,8 @@ paths:
           description: ''
   /hello:
     get:
+      security:
+         - bearerAuth: []
       summary: test
       description: test
       operationId: test
