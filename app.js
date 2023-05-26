@@ -26,6 +26,7 @@ const genresRouter = require('./routes/genres')
 const userRouter = require('./routes/user')
 const fileRouter = require('./routes/file')
 const eventsRouter = require('./routes/events')
+const questionsRouter = require('./routes/questions')
 
 // error handler
 const notFoundMiddleware = require('./middleware/not-found')
@@ -62,6 +63,7 @@ app.use('/api/v1/shorts', authenticationUser, shortsRouter)
 app.use('/api/v1/posts', authenticationUser, postsRouter)
 app.use('/api/v1/genres', authenticationUser, genresRouter)
 app.use('/api/v1/user', authenticationUser, userRouter)
+app.use('/api/v1/questions', authenticationUser, questionsRouter)
 app.use(notFoundMiddleware)
 app.use(errorHandlerMiddleware)
 
