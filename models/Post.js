@@ -29,6 +29,7 @@ const PostSchema = new mongoose.Schema(
         required: [true, 'Please provide downvote users'],
       },
     ],
+    genres: [mongoose.Types.ObjectId],
     createdBy: {
       $type: mongoose.Types.ObjectId,
       ref: 'User',

@@ -152,4 +152,15 @@ const addVoteParams = (rs, userId, hasViewParam) => {
   return jsonRs
 }
 
-module.exports = { getVoteFuncs, addVoteParams }
+const checkDuplicateGenre = (genreList) => {
+  if (Array.isArray(genreList)) {
+    const sorted = genreList.sort()
+    for (let i = 1; i < sorted.length; i++) {
+      if (sorted[i] === sorted[i - 1]) {
+        throw new BadRequestError('Duplicate genre foound!')
+      }
+    }
+  }
+}
+
+module.exports = { getVoteFuncs, addVoteParams, checkDuplicateGenre }

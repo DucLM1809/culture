@@ -34,6 +34,7 @@ const ShortSchema = new mongoose.Schema(
         required: [true, 'Please provide viewed users'],
       },
     ],
+    genres: [mongoose.Types.ObjectId],
     createdBy: {
       type: mongoose.Types.ObjectId,
       ref: 'User',

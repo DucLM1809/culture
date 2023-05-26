@@ -22,7 +22,7 @@ const authRouter = require('./routes/auth')
 const jobsRouter = require('./routes/jobs')
 const shortsRouter = require('./routes/shorts')
 const postsRouter = require('./routes/posts')
-
+const genresRouter = require('./routes/genres')
 // error handler
 const notFoundMiddleware = require('./middleware/not-found')
 const errorHandlerMiddleware = require('./middleware/error-handler')
@@ -54,6 +54,7 @@ app.use('/api/v1/auth', authRouter)
 app.use('/api/v1/jobs', authenticationUser, jobsRouter)
 app.use('/api/v1/shorts', authenticationUser, shortsRouter)
 app.use('/api/v1/posts', authenticationUser, postsRouter)
+app.use('/api/v1/genres', authenticationUser, genresRouter)
 app.use(notFoundMiddleware)
 app.use(errorHandlerMiddleware)
 
