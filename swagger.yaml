@@ -190,6 +190,27 @@ paths:
       responses:
         '200':
           description: ''
+  /api/v1/shorts/set-view-portion/{id}:
+    post:
+      tags:
+        - shorts
+      summary: Set view portion
+      description: Set view portion
+      operationId: setViewPortion
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                portion:
+                  type: number
+                  example: 0.52
+            example:
+              portion: 0.52
+      responses:
+        '200':
+          description: ''
   /api/v1/shorts/view/{id}:
     post:
       security:

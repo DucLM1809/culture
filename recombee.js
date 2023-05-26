@@ -180,7 +180,9 @@ const addRecomRating = async (userId, itemId, type, recommId = 0, max = 0) => {
     rqsOptions.recommId = recommId
   }
 
-  await client.send(new rqs.AddRating(userId, itemId, value, rqsOptions), (e) => {
+  const requests = [new rqs.DeleteRating(userId, itemId), new rqs.AddRating(userId, itemId, value, rqsOptions)]
+
+  await client.send(new rqs.Batch(requests), (e) => {
     console.log(e)
     if (e?.code === 'ERR_SOCKET_CONNECTION_TIMEOUT' && max < 3) {
       addRecomRating(userId, itemId, type, recommId, max + 1)
@@ -201,6 +203,26 @@ const deleteRecomRating = async (userId, itemId, max = 0) => {
   })
 }
 
+const setRecomViewPortion = async (userId, itemId, portion, recommId = 0, max = 0) => {
+  if (max >= 3) {
+    return
+  }
+
+  const rqsOptions = {
+    cascadeCreate: true,
+  }
+  if (recommId !== 0) {
+    rqsOptions.recommId = recommId
+  }
+
+  await client.send(new rqs.SetViewPortion(userId, itemId, portion, rqsOptions), (e) => {
+    console.log(e)
+    if (e?.code === 'ERR_SOCKET_CONNECTION_TIMEOUT' && max < 3) {
+      deleteRecomRating(userId, itemId, max + 1)
+    }
+  })
+}
+
 module.exports = {
   client,
   rqs,
@@ -213,4 +235,5 @@ module.exports = {
   deleteRecomUser,
   addRecomRating,
   deleteRecomRating,
+  setRecomViewPortion,
 }
