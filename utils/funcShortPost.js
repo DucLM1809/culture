@@ -1,5 +1,6 @@
 const { StatusCodes } = require('http-status-codes')
 const { BadRequestError, NotFoundError } = require('../errors')
+const { addRecomRating, deleteRecomRating } = require('../recombee')
 
 const getVoteFuncs = (Model) => {
   // UPVOTE
@@ -36,6 +37,7 @@ const getVoteFuncs = (Model) => {
     if (!rs) {
       throw new NotFoundError(`No item with id ${id}`)
     }
+    addRecomRating(userId, id, 'upvote')
 
     res.status(StatusCodes.OK).json({ data: rs })
   }
@@ -61,6 +63,7 @@ const getVoteFuncs = (Model) => {
     if (!rs) {
       throw new NotFoundError(`No item with id ${id}`)
     }
+    deleteRecomRating(userId, id)
 
     res.status(StatusCodes.OK).json({ data: rs })
   }
@@ -100,6 +103,7 @@ const getVoteFuncs = (Model) => {
     if (!rs) {
       throw new NotFoundError(`No item with id ${id}`)
     }
+    addRecomRating(userId, id, 'downvote')
 
     res.status(StatusCodes.OK).json({ data: rs })
   }
@@ -125,6 +129,7 @@ const getVoteFuncs = (Model) => {
     if (!rs) {
       throw new NotFoundError(`No item with id ${id}`)
     }
+    deleteRecomRating(userId, id)
 
     res.status(StatusCodes.OK).json({ data: rs })
   }

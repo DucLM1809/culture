@@ -6,7 +6,7 @@ const ObjectId = require('mongoose').Types.ObjectId
 const { StatusCodes } = require('http-status-codes')
 const { BadRequestError, NotFoundError } = require('../errors')
 const { getVoteFuncs, addVoteParams, checkDuplicateGenre } = require('../utils/funcShortPost')
-const { addRecomShort, updateRecomShort, deleteRecom } = require('../recombee')
+const { addRecomShort, updateRecomShort, deleteRecom, setRecomViewPortion } = require('../recombee')
 
 // eslint-disable-next-line no-undef
 const distributionDomain = process.env.AWS_DISTRIBUTION_DOMAIN
@@ -265,6 +265,65 @@ const checkViewed = async (shortId, userId) => {
   return false
 }
 
+const setShortViewPortion = async (req, res) => {
+  const userId = req.user.userId
+  const portion = req.body.portion
+  const id = req.params.id
+
+  let lastPortionId = -1
+  const checkRs = await Short.findOne({
+    _id: id,
+    viewPortions: {
+      $elemMatch: {
+        userId: userId,
+      },
+    },
+  })
+  if (checkRs) {
+    const obj = checkRs.toObject()
+    const lastPortion = obj.viewPortions[0]
+    if (lastPortion.portion >= portion) throw new BadRequestError('Last view portion is greater or equal than current')
+    lastPortionId = obj.viewPortions[0]._id
+  }
+
+  if (!portion) {
+    throw new BadRequestError('Must provide portion')
+  }
+
+  let rs
+  if (lastPortionId === -1) {
+    rs = await Short.findByIdAndUpdate(
+      { _id: id },
+      {
+        $push: {
+          viewPortions: {
+            userId,
+            portion,
+          },
+        },
+      },
+      { new: true, runValidators: true }
+    )
+  } else {
+    rs = await Short.updateOne(
+      { _id: id, 'viewPortions._id': lastPortionId },
+      {
+        $set: {
+          'viewPortions.$.portion': portion,
+        },
+      },
+      { new: true, runValidators: true }
+    )
+  }
+
+  if (!rs) {
+    throw new NotFoundError('Not found short with id ' + id)
+  }
+
+  setRecomViewPortion(userId, id, portion)
+  res.status(StatusCodes.OK).json({ message: 'Success' })
+}
+
 const viewShort = async (req, res) => {
   const userId = req.user.userId
   const id = req.params.id
@@ -282,6 +341,7 @@ const viewShort = async (req, res) => {
     },
     { new: true, runValidators: true }
   )
+  setRecomViewPortion(userId, id, 1)
 
   res.status(StatusCodes.OK).json({ data: rs })
 }
@@ -300,4 +360,5 @@ module.exports = {
   downvote,
   disDownvote,
   viewShort,
+  setShortViewPortion,
 }

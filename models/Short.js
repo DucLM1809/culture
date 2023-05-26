@@ -31,6 +31,19 @@ const ShortSchema = new mongoose.Schema(
         required: [true, 'Please provide downvote users'],
       },
     ],
+    viewPortions: [
+      {
+        userId: {
+          type: mongoose.Types.ObjectId,
+          ref: 'User',
+          required: [true, 'Please provide view portion user id'],
+        },
+        portion: {
+          type: Number,
+          required: [true, 'Please provide view portion'],
+        },
+      },
+    ],
     views: [
       {
         type: mongoose.Types.ObjectId,
