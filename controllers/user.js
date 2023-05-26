@@ -1,0 +1,46 @@
+const User = require('../models/User')
+
+const { StatusCodes } = require('http-status-codes')
+const { BadRequestError, NotFoundError } = require('../errors')
+
+const getUser = async (req, res) => {
+  const user = await User.findById(req.user.userId)
+
+  const { _id, role, name, email, avatar, points } = user
+
+  res.status(StatusCodes.OK).json({
+    data: {
+      _id,
+      role,
+      name,
+      email,
+      avatar,
+      points
+    }
+  })
+}
+
+const updateUser = async (req, res) => {
+  const { avatarUrl } = req.body
+  let user = await User.findById(req.user.userId)
+  await User.findByIdAndUpdate(req.user.userId, {
+    ...(avatarUrl && { avatar: avatarUrl })
+  })
+
+  // const user = await User.findById(req.user.userId)
+
+  const { _id, role, name, email, avatar, points } = user
+
+  res.status(StatusCodes.OK).json({
+    data: {
+      _id,
+      role,
+      name,
+      email,
+      avatar,
+      points
+    }
+  })
+}
+
+module.exports = { getUser, updateUser }

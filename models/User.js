@@ -27,6 +27,13 @@ const UserSchema = new mongoose.Schema({
     type: String,
     default: 'USER',
   },
+  avatar: {
+    type: String,
+  },
+  points: {
+    type: Number,
+    default: 0,
+  },
   dob: {
     type: Date,
     required: [true, 'Please provide dob'],
