@@ -7,26 +7,29 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Please provide name'],
     minLength: 3,
-    maxLength: 50,
+    maxLength: 50
   },
   email: {
     type: String,
     required: [true, 'Please provide email'],
     match: [
       /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-      'Please provide valid email',
+      'Please provide valid email'
     ],
-    unique: true,
+    unique: true
   },
   password: {
     type: String,
     required: [true, 'Please provide password'],
-    minLength: 6,
+    minLength: 6
   },
   role: {
     type: String,
-    default: 'USER',
+    default: 'USER'
   },
+  avatar: {
+    type: String
+  }
 })
 
 UserSchema.pre('save', async function () {
@@ -35,9 +38,13 @@ UserSchema.pre('save', async function () {
 })
 
 UserSchema.methods.createJWT = function () {
-  return jwt.sign({ userId: this._id, name: this.name }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_LIFETIME,
-  })
+  return jwt.sign(
+    { userId: this._id, name: this.name },
+    process.env.JWT_SECRET,
+    {
+      expiresIn: process.env.JWT_LIFETIME
+    }
+  )
 }
 
 UserSchema.methods.comparePassword = async function (candidatePassword) {
