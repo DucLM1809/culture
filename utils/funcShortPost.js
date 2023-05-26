@@ -161,7 +161,7 @@ const checkDuplicateGenre = (genreList) => {
     const sorted = genreList.sort()
     for (let i = 1; i < sorted.length; i++) {
       if (sorted[i] === sorted[i - 1]) {
-        throw new BadRequestError('Duplicate genre foound!')
+        throw new BadRequestError('Duplicate genre found!')
       }
     }
   }
