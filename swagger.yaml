@@ -224,10 +224,14 @@ paths:
                 password:
                   type: string
                   example: abcd1234
+                dob:
+                  type: string
+                  example: 1932-09-18T17:04:01Z
             example:
               email: hdatdragon2@gmail.com
               name: Tuan
               password: abcd1234
+              dob: 1932-09-18T17:04:01Z
       responses:
         '200':
           description: ''

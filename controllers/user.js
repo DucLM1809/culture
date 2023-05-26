@@ -21,10 +21,11 @@ const getUser = async (req, res) => {
 }
 
 const updateUser = async (req, res) => {
-  const { avatarUrl } = req.body
+  const { avatarUrl, dob } = req.body
   let user = await User.findById(req.user.userId)
   await User.findByIdAndUpdate(req.user.userId, {
-    ...(avatarUrl && { avatar: avatarUrl })
+    ...(avatarUrl && { avatar: avatarUrl }),
+    ...(dob && { dob: dob })
   })
 
   // const user = await User.findById(req.user.userId)
