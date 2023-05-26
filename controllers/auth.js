@@ -15,10 +15,13 @@ const test = async (req, res) => {
 
 const register = async (req, res) => {
   const data = { ...req.body }
-  data.dob = moment(req.query.date + ' 12:00', 'YYYY-MM-DD HH:mm:ss')
-    .utc()
-    .toDate()
-  const user = await User.create({ ...req.body })
+  const birthday = moment(data.dob).format('YYYY-MM-DD')
+  const today = moment()
+  const age = today.diff(birthday, 'years')
+  const user = await User.create({
+    ...req.body,
+    role: age > 40 ? 'AGED' : 'USER'
+  })
   addRecomUser(user._id)
   const token = user.createJWT()
   res.status(StatusCodes.CREATED).json({ user: { name: user.name }, token })
@@ -49,5 +52,5 @@ const login = async (req, res) => {
 module.exports = {
   register,
   login,
-  test,
+  test
 }
