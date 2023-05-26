@@ -896,6 +896,8 @@ paths:
           description: ''
   /api/v1/questions/{id}/answer/{answerId}:
     put:
+      security:
+         - bearerAuth: []
       tags:
         - questions
       summary: Answer Question
