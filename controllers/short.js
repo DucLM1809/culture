@@ -1,5 +1,8 @@
 const Short = require('../models/Short')
 const Genre = require('../models/Genre')
+const User = require('../models/User')
+const ObjectId = require('mongoose').Types.ObjectId
+
 const { StatusCodes } = require('http-status-codes')
 const { BadRequestError, NotFoundError } = require('../errors')
 const { getVoteFuncs, addVoteParams, checkDuplicateGenre } = require('../utils/funcShortPost')
@@ -10,9 +13,29 @@ const distributionDomain = process.env.AWS_DISTRIBUTION_DOMAIN
 const getAllShortsOfUser = async (req, res) => {
   const userId = req.query.userId
   const requestUser = req.user.userId
-  const rs = await Short.find({
-    createdBy: userId,
-  })
+  const rs = await Short.aggregate([
+    {
+      $match: {
+        createdBy: ObjectId(userId),
+      },
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'createdBy',
+        foreignField: '_id',
+        as: 'createdUser',
+      },
+    },
+    {
+      $unset: 'createdUser.password',
+    },
+    {
+      $unwind: {
+        path: '$createdUser',
+      },
+    },
+  ])
   if (!rs) {
     throw new NotFoundError(`No shorts of userId ${userId}`)
   }
@@ -27,13 +50,36 @@ const getShort = async (req, res) => {
     user: { userId },
     params: { id },
   } = req
-  const rs = await Short.findOne({
-    _id: id,
-  })
+  const rs = await Short.aggregate([
+    {
+      $match: {
+        _id: ObjectId(id),
+      },
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'createdBy',
+        foreignField: '_id',
+        as: 'createdUser',
+      },
+    },
+    {
+      $unset: 'createdUser.password',
+    },
+    {
+      $limit: 1,
+    },
+    {
+      $unwind: {
+        path: '$createdUser',
+      },
+    },
+  ])
   if (!rs) {
     throw new NotFoundError(`No short with id ${id}`)
   }
-  res.status(StatusCodes.OK).json({ data: addVoteParams(rs, userId, true) })
+  res.status(StatusCodes.OK).json({ data: addVoteParams(rs[0], userId, true) })
 }
 
 const uploadShort = async (req, res) => {
@@ -68,8 +114,22 @@ const uploadShort = async (req, res) => {
     genres,
     description,
   })
+  const createdUser = await User.findOne(
+    {
+      _id: createdBy,
+    },
+    {
+      role: 1,
+      _id: 1,
+      name: 1,
+      email: 1,
+      avatar: 1,
+    }
+  )
+  const jsonRs = JSON.parse(JSON.stringify(rs))
+  jsonRs.createdUser = JSON.parse(JSON.stringify(createdUser))
 
-  res.status(StatusCodes.CREATED).json({ data: rs })
+  res.status(StatusCodes.CREATED).json({ data: jsonRs })
 }
 
 const updateShortWithVideo = async (req, res) => {
@@ -116,13 +176,12 @@ const updateShortBasic = async (req, res) => {
   const duration = Number(req.body.duration)
   const description = req.body.description
   const userId = req.user.userId
+  const genres = JSON.parse(req.body.genres || '')
   if (!duration) {
     throw new BadRequestError('Duration field cannot be empty')
   }
 
   checkDuplicateGenre(genres)
-
-  const genres = JSON.parse(req.body.genres || '')
 
   if (!Array.isArray(genres) || genres.length == 0) {
     throw new BadRequestError('Specify at least 1 genre')

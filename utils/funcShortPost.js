@@ -133,11 +133,15 @@ const getVoteFuncs = (Model) => {
 }
 
 const addVoteParams = (rs, userId, hasViewParam) => {
-  let jsonRs = rs.toObject()
+  let jsonRs = ''
+  if ('toObject' in rs) {
+    jsonRs = rs.toObject()
+  } else {
+    jsonRs = JSON.parse(JSON.stringify(rs))
+  }
 
   const userUpvoted = jsonRs.upvotes?.find((uid) => String(uid) === String(userId))
   const userDownvoted = jsonRs.downvotes?.find((uid) => String(uid) === String(userId))
-  console.log('res: ', userUpvoted)
   jsonRs = {
     ...jsonRs,
     userUpvoted: !!userUpvoted,
