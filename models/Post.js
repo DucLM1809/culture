@@ -6,6 +6,10 @@ const PostSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    isRefused: {
+      type: Boolean,
+      default: false,
+    },
     medias: [
       {
         url: String,
@@ -38,6 +42,14 @@ const PostSchema = new mongoose.Schema(
       $type: mongoose.Types.ObjectId,
       ref: 'User',
       required: [true, 'Please provide user'],
+    },
+    acceptCount: {
+      type: Number,
+      default: 0,
+    },
+    refuseCount: {
+      type: Number,
+      default: 0,
     },
   },
   { typeKey: '$type', timestamps: true }

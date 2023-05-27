@@ -3,9 +3,9 @@ const Genre = require('../models/Genre')
 const User = require('../models/User')
 const mongoose = require('mongoose')
 const { StatusCodes } = require('http-status-codes')
-const { BadRequestError, NotFoundError } = require('../errors')
+const { BadRequestError, NotFoundError, UnauthenticatedError } = require('../errors')
 const { getVoteFuncs, addVoteParams, checkDuplicateGenre } = require('../utils/funcShortPost')
-const { addRecomPost, deleteRecom, updateRecomPost } = require('../recombee')
+const { addRecomPost, deleteRecom, updateRecomPost, getRecom, verify, refuse } = require('../recombee')
 
 // eslint-disable-next-line no-undef
 const distributionDomain = process.env.AWS_DISTRIBUTION_DOMAIN
@@ -55,6 +55,104 @@ const getAllPostsOfUser = async (req, res) => {
   const jsonRs = rs.map((item) => addVoteParams(item, requestUser))
 
   res.status(StatusCodes.OK).json({ data: jsonRs })
+}
+
+const getRecommends = async (req, res) => {
+  const requestUser = req.user.userId
+  const role = req.user.role || 'USER'
+  const type = req.query.type
+  let recoms
+  let flag = false
+  recomLabel: try {
+    if (type === 'unverified') {
+      if (!['AGED', 'ADMIN'].includes(role)) {
+        flag = true
+        break recomLabel
+      }
+      recoms = await getRecom(requestUser, 'unverified-post')
+    } else {
+      recoms = await getRecom(requestUser, 'verified-post')
+    }
+  } catch (error) {
+    console.log(error)
+  }
+  if (flag) {
+    throw new UnauthenticatedError('You do not have permission')
+  }
+  const itemIds = recoms.recomms.map((item) => ObjectId(item.id))
+  console.log(itemIds)
+
+  const rs = await Post.aggregate([
+    {
+      $project: {
+        _id: itemIds,
+      },
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'createdBy',
+        foreignField: '_id',
+        as: 'createdUser',
+      },
+    },
+    {
+      $lookup: {
+        from: 'genres',
+        localField: 'genres',
+        foreignField: '_id',
+        as: 'queryGenres',
+      },
+    },
+    {
+      $unset: 'createdUser.password',
+    },
+    {
+      $unwind: {
+        path: '$createdUser',
+      },
+    },
+  ])
+  rs.recommId = recoms.recommId
+
+  if (!rs) {
+    throw new NotFoundError(`Invalid recommend id`)
+  }
+
+  const jsonRs = rs.map((item) => addVoteParams(item, requestUser, true))
+
+  res.status(StatusCodes.OK).json({ data: jsonRs })
+}
+
+const scrutinize = async (req, res) => {
+  const id = req.query.id
+  const role = req.user.role || 'USER'
+  const action = req.body.action
+
+  if (!['AGED', 'ADMIN'].includes(role)) {
+    throw new UnauthenticatedError('User does not have permission')
+  }
+
+  let value = action === 'accept' ? 'acceptCount' : 'refuseCount'
+
+  const rs = Post.findByIdAndUpdate(
+    {
+      _id: id,
+    },
+    {
+      $inc: {
+        [value]: 1,
+      },
+    }
+  )
+
+  if (rs.acceptCount >= 1) {
+    verify(id)
+  } else if (rs.refuseCount >= 1) {
+    refuse(id)
+  }
+
+  res.status(StatusCodes.OK).json({ message: 'Success' })
 }
 
 const getPost = async (req, res) => {
@@ -273,4 +371,6 @@ module.exports = {
   disUpvote,
   downvote,
   disDownvote,
+  getRecommends,
+  scrutinize,
 }

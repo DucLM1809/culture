@@ -4,9 +4,10 @@ const User = require('../models/User')
 const ObjectId = require('mongoose').Types.ObjectId
 
 const { StatusCodes } = require('http-status-codes')
-const { BadRequestError, NotFoundError } = require('../errors')
+const { BadRequestError, NotFoundError, UnauthenticatedError } = require('../errors')
 const { getVoteFuncs, addVoteParams, checkDuplicateGenre } = require('../utils/funcShortPost')
-const { addRecomShort, updateRecomShort, deleteRecom, setRecomViewPortion } = require('../recombee')
+const { addRecomShort, updateRecomShort, deleteRecom, setRecomViewPortion, getRecom, refuse } = require('../recombee')
+const { verify } = require('../recombee')
 
 // eslint-disable-next-line no-undef
 const distributionDomain = process.env.AWS_DISTRIBUTION_DOMAIN
@@ -52,6 +53,105 @@ const getAllShortsOfUser = async (req, res) => {
   const jsonRs = rs.map((item) => addVoteParams(item, requestUser, true))
 
   res.status(StatusCodes.OK).json({ data: jsonRs })
+}
+
+const getRecommends = async (req, res) => {
+  const requestUser = req.user.userId
+  const role = req.user.role || 'USER'
+  const type = req.query.type
+  let recoms
+  let flag = false
+  recomLabel: try {
+    if (type === 'unverified') {
+      if (!['AGED', 'ADMIN'].includes(role)) {
+        flag = true
+        break recomLabel
+      }
+      recoms = await getRecom(requestUser, 'unverified-short')
+    } else {
+      recoms = await getRecom(requestUser, 'verified-short')
+    }
+  } catch (error) {
+    console.log(error)
+  }
+  if (flag) {
+    throw new UnauthenticatedError('User does not have permission')
+  }
+  const itemIds = recoms.recomms.map((item) => ObjectId(item.id))
+  console.log(itemIds)
+
+  const rs = await Short.aggregate([
+    {
+      $project: {
+        _id: itemIds,
+      },
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'createdBy',
+        foreignField: '_id',
+        as: 'createdUser',
+      },
+    },
+    {
+      $lookup: {
+        from: 'genres',
+        localField: 'genres',
+        foreignField: '_id',
+        as: 'queryGenres',
+      },
+    },
+    {
+      $unset: 'createdUser.password',
+    },
+    {
+      $unwind: {
+        path: '$createdUser',
+      },
+    },
+  ])
+  rs.recommId = recoms.recommId
+
+  if (!rs) {
+    throw new NotFoundError(`Invalid recommend id`)
+  }
+  console.log('Triggerd here')
+
+  const jsonRs = rs.map((item) => addVoteParams(item, requestUser, true))
+
+  res.status(StatusCodes.OK).json({ data: jsonRs })
+}
+
+const scrutinize = async (req, res) => {
+  const id = req.query.id
+  const role = req.user.role || 'USER'
+  const action = req.body.action
+
+  if (!['AGED', 'ADMIN'].includes(role)) {
+    throw new UnauthenticatedError('User does not have permission')
+  }
+
+  let value = action === 'accept' ? 'acceptCount' : 'refuseCount'
+
+  const rs = Short.findByIdAndUpdate(
+    {
+      _id: id,
+    },
+    {
+      $inc: {
+        [value]: 1,
+      },
+    }
+  )
+
+  if (rs.acceptCount >= 1) {
+    verify(id)
+  } else if (rs.refuseCount >= 1) {
+    refuse(id)
+  }
+
+  res.status(StatusCodes.OK).json({ message: 'Success' })
 }
 
 const getShort = async (req, res) => {
@@ -361,4 +461,6 @@ module.exports = {
   disDownvote,
   viewShort,
   setShortViewPortion,
+  scrutinize,
+  getRecommends,
 }

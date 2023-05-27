@@ -6,6 +6,10 @@ const ShortSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    isRefused: {
+      type: Boolean,
+      default: false,
+    },
     url: {
       type: String,
       required: [true, 'Please provide url'],
@@ -56,6 +60,14 @@ const ShortSchema = new mongoose.Schema(
       type: mongoose.Types.ObjectId,
       ref: 'User',
       required: [true, 'Please provide user'],
+    },
+    acceptCount: {
+      type: Number,
+      default: 0,
+    },
+    refuseCount: {
+      type: Number,
+      default: 0,
     },
   },
   { timestamps: true }

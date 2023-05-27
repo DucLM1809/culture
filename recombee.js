@@ -1,4 +1,5 @@
 const recombee = require('recombee-api-client')
+const { BadRequestError } = require('./errors')
 var rqs = recombee.requests
 
 // eslint-disable-next-line no-undef
@@ -15,6 +16,7 @@ const addRecomShort = async (itemId, data, max = 0) => {
     new rqs.AddItemProperty('description', 'string'),
     new rqs.AddItemProperty('genres', 'set'),
     new rqs.AddItemProperty('type', 'string'),
+    new rqs.AddItemProperty('isRefused', 'boolean'),
     new rqs.SetItemValues(
       itemId,
       {
@@ -90,6 +92,7 @@ const addRecomPost = async (itemId, data, max = 0) => {
     new rqs.AddItemProperty('description', 'string'),
     new rqs.AddItemProperty('genres', 'set'),
     new rqs.AddItemProperty('type', 'string'),
+    new rqs.AddItemProperty('isRefused', 'boolean'),
     new rqs.SetItemValues(
       itemId,
       {
@@ -223,6 +226,95 @@ const setRecomViewPortion = async (userId, itemId, portion, recommId = 0, max = 
   })
 }
 
+const getRecom = async (userId, type, max = 0) => {
+  let scenario
+  switch (type) {
+    case 'verified-post':
+      scenario = 'young-user'
+      break
+    case 'verified-short':
+      scenario = 'young-user-short'
+      break
+    case 'unverified-short':
+      scenario = 'aged-user-short'
+      break
+    case 'unverified-post':
+      scenario = 'aged-user'
+      break
+    default:
+      throw new BadRequestError('Wrong filter value')
+  }
+
+  if (max >= 3) {
+    return
+  }
+
+  return client.send(
+    new rqs.RecommendItemsToUser(
+      userId,
+      5,
+      {
+        scenario,
+      }
+      // , {
+      // scenario,
+      // cascadeCreate: true,
+      // filter,
+      // }
+    )
+  )
+}
+
+const verify = async (itemId, max = 0) => {
+  if (max >= 3) {
+    return
+  }
+
+  const requests = [
+    new rqs.SetItemValues(
+      itemId,
+      {
+        checked: true,
+      },
+      {
+        // optional parameters:
+        cascadeCreate: true,
+      }
+    ),
+  ]
+  await client.send(new rqs.Batch(requests), (e) => {
+    console.log(e)
+    if (e?.code === 'ERR_SOCKET_CONNECTION_TIMEOUT' && max < 3) {
+      verify(itemId, max + 1)
+    }
+  })
+}
+
+const refuse = async (itemId, max = 0) => {
+  if (max >= 3) {
+    return
+  }
+
+  const requests = [
+    new rqs.SetItemValues(
+      itemId,
+      {
+        isRefused: true,
+      },
+      {
+        // optional parameters:
+        cascadeCreate: true,
+      }
+    ),
+  ]
+  await client.send(new rqs.Batch(requests), (e) => {
+    console.log(e)
+    if (e?.code === 'ERR_SOCKET_CONNECTION_TIMEOUT' && max < 3) {
+      refuse(itemId, max + 1)
+    }
+  })
+}
+
 module.exports = {
   client,
   rqs,
@@ -236,4 +328,7 @@ module.exports = {
   addRecomRating,
   deleteRecomRating,
   setRecomViewPortion,
+  getRecom,
+  verify,
+  refuse,
 }
