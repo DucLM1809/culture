@@ -14,6 +14,8 @@ const {
   viewShort,
   getAllShortsOfUser,
   setShortViewPortion,
+  getRecommends,
+  scrutinize,
 } = require('../controllers/short')
 const { uploadFileMs3 } = require('../s3')
 
@@ -27,6 +29,8 @@ router.route('/downvote/:id').post(downvote)
 router.route('/disDownvote/:id').post(disDownvote)
 router.route('/view/:id').post(viewShort)
 router.route('/set-view-portion/:id').post(setShortViewPortion)
+router.route('/recommend').get(getRecommends)
+router.route('/scrutinize/:id').get(scrutinize)
 router.route('/').get(getAllShortsOfUser)
 router.route('/:id').get(getShort)
 
