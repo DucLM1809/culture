@@ -144,21 +144,7 @@ const scrutinize = async (req, res) => {
     throw new UnauthenticatedError('User does not have permission')
   }
 
-  let value = action === 'accept' ? 'acceptCount' : 'refuseCount'
-
-  const rs = await Short.findByIdAndUpdate(
-    {
-      _id: id,
-    },
-    {
-      $inc: {
-        [value]: 1,
-      },
-    },
-    { new: true, runValidators: true }
-  )
-
-  if (rs.acceptCount >= 1) {
+  if (action === 'accept') {
     verify(id)
     await Short.findByIdAndUpdate(
       {
@@ -169,7 +155,7 @@ const scrutinize = async (req, res) => {
       },
       { new: true, runValidators: true }
     )
-  } else if (rs.refuseCount >= 1) {
+  } else {
     refuse(id)
     await Short.findByIdAndUpdate(
       {
