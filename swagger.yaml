@@ -267,6 +267,24 @@ paths:
       responses:
         '200':
           description: ''
+  /api/v1/shorts/search:
+    get:
+      security:
+         - bearerAuth: []
+      tags:
+        - shorts
+      summary: Search
+      description: Search
+      operationId: search
+      parameters:
+        - name: query
+          in: query
+          schema:
+            type: string
+            example: Sự hấp dẫn của Hội Gióng trước hết phải kể
+      responses:
+        '200':
+          description: ''
   /api/v1/auth/register:
     post:
       tags:
@@ -574,6 +592,8 @@ paths:
           description: ''
   /api/v1/posts/recommend:
     get:
+      security:
+         - bearerAuth: []
       tags:
         - post
       summary: Get recommendation
@@ -590,6 +610,8 @@ paths:
           description: ''
   /api/v1/posts/scrutinize/{}:
     post:
+      security:
+         - bearerAuth: []
       tags:
         - post
       summary: Scrutinize
@@ -606,6 +628,24 @@ paths:
                   example: accept
             example:
               action: accept
+      responses:
+        '200':
+          description: ''
+  /api/v1/posts/search:
+    get:
+      security:
+         - bearerAuth: []
+      tags:
+        - post
+      summary: Search
+      description: Search
+      operationId: search1
+      parameters:
+        - name: query
+          in: query
+          schema:
+            type: string
+            example: Sự hấp dẫn của Hội Gióng trước hết phải kể
       responses:
         '200':
           description: ''

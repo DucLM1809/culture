@@ -5,7 +5,7 @@ const mongoose = require('mongoose')
 const { StatusCodes } = require('http-status-codes')
 const { BadRequestError, NotFoundError, UnauthenticatedError } = require('../errors')
 const { getVoteFuncs, addVoteParams, checkDuplicateGenre } = require('../utils/funcShortPost')
-const { addRecomPost, deleteRecom, updateRecomPost, getRecom, verify, refuse } = require('../recombee')
+const { addRecomPost, deleteRecom, updateRecomPost, getRecom, verify, refuse, searchRecom } = require('../recombee')
 
 // eslint-disable-next-line no-undef
 const distributionDomain = process.env.AWS_DISTRIBUTION_DOMAIN
@@ -79,6 +79,65 @@ const getRecommends = async (req, res) => {
   if (flag) {
     throw new UnauthenticatedError('You do not have permission')
   }
+  const itemIds = recoms.recomms.map((item) => ObjectId(item.id))
+  console.log(itemIds)
+
+  const rs = await Post.aggregate([
+    {
+      $match: {
+        _id: {
+          $in: itemIds,
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'createdBy',
+        foreignField: '_id',
+        as: 'createdUser',
+      },
+    },
+    {
+      $lookup: {
+        from: 'genres',
+        localField: 'genres',
+        foreignField: '_id',
+        as: 'queryGenres',
+      },
+    },
+    {
+      $unset: 'createdUser.password',
+    },
+    {
+      $unwind: {
+        path: '$createdUser',
+      },
+    },
+  ])
+
+  if (!rs) {
+    throw new NotFoundError(`Invalid recommend id`)
+  }
+
+  const jsonRs = rs.map((item) => addVoteParams(item, requestUser, true))
+
+  res.status(StatusCodes.OK).json({
+    recommId: recoms.recommId,
+    data: jsonRs,
+  })
+}
+
+const search = async (req, res) => {
+  const requestUser = req.user.userId
+  const query = req.query.query
+  let recoms
+  try {
+    recoms = await searchRecom(requestUser, query, 'post')
+  } catch (error) {
+    console.log('searchRecom', error)
+  }
+
   const itemIds = recoms.recomms.map((item) => ObjectId(item.id))
   console.log(itemIds)
 
@@ -396,4 +455,5 @@ module.exports = {
   disDownvote,
   getRecommends,
   scrutinize,
+  search,
 }

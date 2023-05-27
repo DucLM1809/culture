@@ -228,17 +228,22 @@ const setRecomViewPortion = async (userId, itemId, portion, recommId = undefined
 
 const getRecom = async (userId, type, max = 0) => {
   let scenario
+  let count = 0
   switch (type) {
     case 'verified-post':
       scenario = 'young-user'
+      count = 10
       break
     case 'verified-short':
+      count = 10
       scenario = 'young-user-short'
       break
     case 'unverified-short':
+      count = 1
       scenario = 'aged-user-short'
       break
     case 'unverified-post':
+      count = 1
       scenario = 'aged-user'
       break
     default:
@@ -250,18 +255,9 @@ const getRecom = async (userId, type, max = 0) => {
   }
 
   return client.send(
-    new rqs.RecommendItemsToUser(
-      userId,
-      5,
-      {
-        scenario,
-      }
-      // , {
-      // scenario,
-      // cascadeCreate: true,
-      // filter,
-      // }
-    )
+    new rqs.RecommendItemsToUser(userId, count, {
+      scenario,
+    })
   )
 }
 
@@ -314,6 +310,29 @@ const refuse = async (itemId, max = 0) => {
     }
   })
 }
+const searchRecom = async (userId, searchQuery, type = 'short', max = 0) => {
+  let scenario
+
+  if (max >= 3) {
+    return
+  }
+
+  if (type === 'short') {
+    scenario = 'search-short'
+  } else {
+    scenario = 'search-post'
+  }
+
+  console.log('Search query: ' + searchQuery)
+
+  return await client.send(
+    new rqs.SearchItems(userId, searchQuery, 10, {
+      // optional parameters:
+      scenario: scenario,
+      cascadeCreate: true,
+    })
+  )
+}
 
 module.exports = {
   client,
@@ -331,4 +350,5 @@ module.exports = {
   getRecom,
   verify,
   refuse,
+  searchRecom,
 }
