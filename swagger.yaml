@@ -23,12 +23,6 @@ paths:
       summary: Get all shorts of user
       description: Get all shorts of user
       operationId: getAllShortsOfUser
-      parameters:
-        - name: userId
-          in: query
-          schema:
-            type: string
-            example: 646ef3637251a0220e25132a
       responses:
         '200':
           description: ''
@@ -424,12 +418,6 @@ paths:
       summary: Get all posts of user
       description: Get all posts of user
       operationId: getAllPostsOfUser
-      parameters:
-        - name: userId
-          in: query
-          schema:
-            type: string
-            example: 646ef3637251a0220e25132a
       responses:
         '200':
           description: ''

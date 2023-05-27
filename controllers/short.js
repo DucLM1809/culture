@@ -4,8 +4,16 @@ const User = require('../models/User')
 const ObjectId = require('mongoose').Types.ObjectId
 
 const { StatusCodes } = require('http-status-codes')
-const { BadRequestError, NotFoundError, UnauthenticatedError } = require('../errors')
-const { getVoteFuncs, addVoteParams, checkDuplicateGenre } = require('../utils/funcShortPost')
+const {
+  BadRequestError,
+  NotFoundError,
+  UnauthenticatedError
+} = require('../errors')
+const {
+  getVoteFuncs,
+  addVoteParams,
+  checkDuplicateGenre
+} = require('../utils/funcShortPost')
 const {
   addRecomShort,
   updateRecomShort,
@@ -13,7 +21,7 @@ const {
   setRecomViewPortion,
   getRecom,
   refuse,
-  searchRecom,
+  searchRecom
 } = require('../recombee')
 const { verify } = require('../recombee')
 
@@ -21,41 +29,40 @@ const { verify } = require('../recombee')
 const distributionDomain = process.env.AWS_DISTRIBUTION_DOMAIN
 
 const getAllShortsOfUser = async (req, res) => {
-  const userId = req.query.userId
   const requestUser = req.user.userId
   const rs = await Short.aggregate([
     {
       $match: {
-        createdBy: ObjectId(userId),
-      },
+        createdBy: ObjectId(req.user.userId)
+      }
     },
     {
       $lookup: {
         from: 'users',
         localField: 'createdBy',
         foreignField: '_id',
-        as: 'createdUser',
-      },
+        as: 'createdUser'
+      }
     },
     {
       $lookup: {
         from: 'genres',
         localField: 'genres',
         foreignField: '_id',
-        as: 'queryGenres',
-      },
+        as: 'queryGenres'
+      }
     },
     {
-      $unset: 'createdUser.password',
+      $unset: 'createdUser.password'
     },
     {
       $unwind: {
-        path: '$createdUser',
-      },
-    },
+        path: '$createdUser'
+      }
+    }
   ])
   if (!rs) {
-    throw new NotFoundError(`No shorts of userId ${userId}`)
+    throw new NotFoundError(`No shorts of userId ${req.user.userId}`)
   }
 
   const jsonRs = rs.map((item) => addVoteParams(item, requestUser, true))
@@ -92,34 +99,34 @@ const getRecommends = async (req, res) => {
     {
       $match: {
         _id: {
-          $in: itemIds,
-        },
-      },
+          $in: itemIds
+        }
+      }
     },
     {
       $lookup: {
         from: 'users',
         localField: 'createdBy',
         foreignField: '_id',
-        as: 'createdUser',
-      },
+        as: 'createdUser'
+      }
     },
     {
       $lookup: {
         from: 'genres',
         localField: 'genres',
         foreignField: '_id',
-        as: 'queryGenres',
-      },
+        as: 'queryGenres'
+      }
     },
     {
-      $unset: 'createdUser.password',
+      $unset: 'createdUser.password'
     },
     {
       $unwind: {
-        path: '$createdUser',
-      },
-    },
+        path: '$createdUser'
+      }
+    }
   ])
 
   if (!rs) {
@@ -131,7 +138,7 @@ const getRecommends = async (req, res) => {
 
   res.status(StatusCodes.OK).json({
     recommId: recoms.recommId,
-    data: jsonRs,
+    data: jsonRs
   })
 }
 
@@ -148,10 +155,10 @@ const scrutinize = async (req, res) => {
     verify(id)
     await Short.findByIdAndUpdate(
       {
-        _id: id,
+        _id: id
       },
       {
-        checked: true,
+        checked: true
       },
       { new: true, runValidators: true }
     )
@@ -159,10 +166,10 @@ const scrutinize = async (req, res) => {
     refuse(id)
     await Short.findByIdAndUpdate(
       {
-        _id: id,
+        _id: id
       },
       {
-        isRefused: true,
+        isRefused: true
       },
       { new: true, runValidators: true }
     )
@@ -174,33 +181,33 @@ const scrutinize = async (req, res) => {
 const getShort = async (req, res) => {
   const {
     user: { userId },
-    params: { id },
+    params: { id }
   } = req
   const rs = await Short.aggregate([
     {
       $match: {
-        _id: ObjectId(id),
-      },
+        _id: ObjectId(id)
+      }
     },
     {
       $lookup: {
         from: 'users',
         localField: 'createdBy',
         foreignField: '_id',
-        as: 'createdUser',
-      },
+        as: 'createdUser'
+      }
     },
     {
-      $unset: 'createdUser.password',
+      $unset: 'createdUser.password'
     },
     {
-      $limit: 1,
+      $limit: 1
     },
     {
       $unwind: {
-        path: '$createdUser',
-      },
-    },
+        path: '$createdUser'
+      }
+    }
   ])
   if (!rs) {
     throw new NotFoundError(`No short with id ${id}`)
@@ -241,20 +248,20 @@ const uploadShort = async (req, res) => {
     url,
     createdBy,
     genres,
-    description,
+    description
   }
 
   const rs = await Short.create(data)
   const createdUser = await User.findOne(
     {
-      _id: createdBy,
+      _id: createdBy
     },
     {
       role: 1,
       _id: 1,
       name: 1,
       email: 1,
-      avatar: 1,
+      avatar: 1
     }
   )
   const jsonRs = JSON.parse(JSON.stringify(rs))
@@ -300,13 +307,17 @@ const updateShortWithVideo = async (req, res) => {
     duration,
     url,
     genres,
-    description,
+    description
   }
 
-  const rs = await Short.findByIdAndUpdate({ _id: id, createdBy: userId }, data, { new: true, runValidators: true })
+  const rs = await Short.findByIdAndUpdate(
+    { _id: id, createdBy: userId },
+    data,
+    { new: true, runValidators: true }
+  )
   updateRecomShort(id, {
     ...data,
-    genres: queryGenres,
+    genres: queryGenres
   })
   res.status(StatusCodes.OK).json({ data: rs })
 }
@@ -342,13 +353,17 @@ const updateShortBasic = async (req, res) => {
   const data = {
     duration,
     description,
-    genres,
+    genres
   }
 
-  const rs = await Short.findByIdAndUpdate({ _id: id, createdBy: userId }, data, { new: true, runValidators: true })
+  const rs = await Short.findByIdAndUpdate(
+    { _id: id, createdBy: userId },
+    data,
+    { new: true, runValidators: true }
+  )
   updateRecomShort(id, {
     ...data,
-    genres: queryGenres,
+    genres: queryGenres
   })
   res.status(StatusCodes.OK).json({ data: rs })
 }
@@ -356,12 +371,12 @@ const updateShortBasic = async (req, res) => {
 const deleteShort = async (req, res) => {
   const {
     user: { userId },
-    params: { id },
+    params: { id }
   } = req
 
   const rs = await Short.findByIdAndRemove({
     _id: id,
-    createdBy: userId,
+    createdBy: userId
   })
 
   if (!rs) {
@@ -376,7 +391,7 @@ const deleteShort = async (req, res) => {
 const checkViewed = async (shortId, userId) => {
   const rs = await Short.findOne({
     _id: shortId,
-    views: userId,
+    views: userId
   })
   if (rs) return true
   return false
@@ -392,14 +407,17 @@ const setShortViewPortion = async (req, res) => {
     _id: id,
     viewPortions: {
       $elemMatch: {
-        userId: userId,
-      },
-    },
+        userId: userId
+      }
+    }
   })
   if (checkRs) {
     const obj = checkRs.toObject()
     const lastPortion = obj.viewPortions[0]
-    if (lastPortion.portion >= portion) throw new BadRequestError('Last view portion is greater or equal than current')
+    if (lastPortion.portion >= portion)
+      throw new BadRequestError(
+        'Last view portion is greater or equal than current'
+      )
     lastPortionId = obj.viewPortions[0]._id
   }
 
@@ -415,9 +433,9 @@ const setShortViewPortion = async (req, res) => {
         $push: {
           viewPortions: {
             userId,
-            portion,
-          },
-        },
+            portion
+          }
+        }
       },
       { new: true, runValidators: true }
     )
@@ -426,8 +444,8 @@ const setShortViewPortion = async (req, res) => {
       { _id: id, 'viewPortions._id': lastPortionId },
       {
         $set: {
-          'viewPortions.$.portion': portion,
-        },
+          'viewPortions.$.portion': portion
+        }
       },
       { new: true, runValidators: true }
     )
@@ -453,8 +471,8 @@ const viewShort = async (req, res) => {
     { _id: id },
     {
       $push: {
-        views: userId,
-      },
+        views: userId
+      }
     },
     { new: true, runValidators: true }
   )
@@ -480,34 +498,34 @@ const search = async (req, res) => {
     {
       $match: {
         _id: {
-          $in: itemIds,
-        },
-      },
+          $in: itemIds
+        }
+      }
     },
     {
       $lookup: {
         from: 'users',
         localField: 'createdBy',
         foreignField: '_id',
-        as: 'createdUser',
-      },
+        as: 'createdUser'
+      }
     },
     {
       $lookup: {
         from: 'genres',
         localField: 'genres',
         foreignField: '_id',
-        as: 'queryGenres',
-      },
+        as: 'queryGenres'
+      }
     },
     {
-      $unset: 'createdUser.password',
+      $unset: 'createdUser.password'
     },
     {
       $unwind: {
-        path: '$createdUser',
-      },
-    },
+        path: '$createdUser'
+      }
+    }
   ])
 
   if (!rs) {
@@ -518,7 +536,7 @@ const search = async (req, res) => {
 
   res.status(StatusCodes.OK).json({
     recommId: recoms.recommId,
-    data: jsonRs,
+    data: jsonRs
   })
 }
 
@@ -539,5 +557,5 @@ module.exports = {
   setShortViewPortion,
   scrutinize,
   getRecommends,
-  search,
+  search
 }

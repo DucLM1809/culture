@@ -3,9 +3,25 @@ const Genre = require('../models/Genre')
 const User = require('../models/User')
 const mongoose = require('mongoose')
 const { StatusCodes } = require('http-status-codes')
-const { BadRequestError, NotFoundError, UnauthenticatedError } = require('../errors')
-const { getVoteFuncs, addVoteParams, checkDuplicateGenre } = require('../utils/funcShortPost')
-const { addRecomPost, deleteRecom, updateRecomPost, getRecom, verify, refuse, searchRecom } = require('../recombee')
+const {
+  BadRequestError,
+  NotFoundError,
+  UnauthenticatedError
+} = require('../errors')
+const {
+  getVoteFuncs,
+  addVoteParams,
+  checkDuplicateGenre
+} = require('../utils/funcShortPost')
+const {
+  addRecomPost,
+  deleteRecom,
+  updateRecomPost,
+  getRecom,
+  verify,
+  refuse,
+  searchRecom
+} = require('../recombee')
 
 // eslint-disable-next-line no-undef
 const distributionDomain = process.env.AWS_DISTRIBUTION_DOMAIN
@@ -15,38 +31,38 @@ const [upvote, disUpvote, downvote, disDownvote] = getVoteFuncs(Post)
 const ObjectId = mongoose.Types.ObjectId
 
 const getAllPostsOfUser = async (req, res) => {
-  const userId = req.query.userId
+  const userId = req.user.userId
   const requestUser = req.user.userId
   const rs = await Post.aggregate([
     {
       $match: {
-        createdBy: ObjectId(userId),
-      },
+        createdBy: ObjectId(userId)
+      }
     },
     {
       $lookup: {
         from: 'users',
         localField: 'createdBy',
         foreignField: '_id',
-        as: 'createdUser',
-      },
+        as: 'createdUser'
+      }
     },
     {
       $lookup: {
         from: 'genres',
         localField: 'genres',
         foreignField: '_id',
-        as: 'queryGenres',
-      },
+        as: 'queryGenres'
+      }
     },
     {
-      $unset: 'createdUser.password',
+      $unset: 'createdUser.password'
     },
     {
       $unwind: {
-        path: '$createdUser',
-      },
-    },
+        path: '$createdUser'
+      }
+    }
   ])
   if (!rs) {
     throw new NotFoundError(`No posts of userId ${userId}`)
@@ -86,34 +102,34 @@ const getRecommends = async (req, res) => {
     {
       $match: {
         _id: {
-          $in: itemIds,
-        },
-      },
+          $in: itemIds
+        }
+      }
     },
     {
       $lookup: {
         from: 'users',
         localField: 'createdBy',
         foreignField: '_id',
-        as: 'createdUser',
-      },
+        as: 'createdUser'
+      }
     },
     {
       $lookup: {
         from: 'genres',
         localField: 'genres',
         foreignField: '_id',
-        as: 'queryGenres',
-      },
+        as: 'queryGenres'
+      }
     },
     {
-      $unset: 'createdUser.password',
+      $unset: 'createdUser.password'
     },
     {
       $unwind: {
-        path: '$createdUser',
-      },
-    },
+        path: '$createdUser'
+      }
+    }
   ])
 
   if (!rs) {
@@ -124,7 +140,7 @@ const getRecommends = async (req, res) => {
 
   res.status(StatusCodes.OK).json({
     recommId: recoms.recommId,
-    data: jsonRs,
+    data: jsonRs
   })
 }
 
@@ -145,34 +161,34 @@ const search = async (req, res) => {
     {
       $match: {
         _id: {
-          $in: itemIds,
-        },
-      },
+          $in: itemIds
+        }
+      }
     },
     {
       $lookup: {
         from: 'users',
         localField: 'createdBy',
         foreignField: '_id',
-        as: 'createdUser',
-      },
+        as: 'createdUser'
+      }
     },
     {
       $lookup: {
         from: 'genres',
         localField: 'genres',
         foreignField: '_id',
-        as: 'queryGenres',
-      },
+        as: 'queryGenres'
+      }
     },
     {
-      $unset: 'createdUser.password',
+      $unset: 'createdUser.password'
     },
     {
       $unwind: {
-        path: '$createdUser',
-      },
-    },
+        path: '$createdUser'
+      }
+    }
   ])
 
   if (!rs) {
@@ -183,7 +199,7 @@ const search = async (req, res) => {
 
   res.status(StatusCodes.OK).json({
     recommId: recoms.recommId,
-    data: jsonRs,
+    data: jsonRs
   })
 }
 
@@ -200,10 +216,10 @@ const scrutinize = async (req, res) => {
     verify(id)
     await Post.findByIdAndUpdate(
       {
-        _id: id,
+        _id: id
       },
       {
-        checked: true,
+        checked: true
       },
       { new: true, runValidators: true }
     )
@@ -211,10 +227,10 @@ const scrutinize = async (req, res) => {
     refuse(id)
     await Post.findByIdAndUpdate(
       {
-        _id: id,
+        _id: id
       },
       {
-        checked: true,
+        checked: true
       },
       { new: true, runValidators: true }
     )
@@ -226,21 +242,21 @@ const scrutinize = async (req, res) => {
 const getPost = async (req, res) => {
   const {
     user: { userId },
-    params: { id },
+    params: { id }
   } = req
   const rs = await Post.aggregate([
     {
       $match: {
-        _id: ObjectId(id),
-      },
+        _id: ObjectId(id)
+      }
     },
     {
       $lookup: {
         from: 'users',
         localField: 'createdBy',
         foreignField: '_id',
-        as: 'createdUser',
-      },
+        as: 'createdUser'
+      }
     },
     {
       $project: {
@@ -258,24 +274,24 @@ const getPost = async (req, res) => {
         'createdUser._id': 1,
         'createdUser.name': 1,
         'createdUser.email': 1,
-        'createdUser.avatar': 1,
-      },
+        'createdUser.avatar': 1
+      }
     },
     {
-      $limit: 1,
+      $limit: 1
     },
     {
       $unwind: {
-        path: '$createdUser',
-      },
-    },
+        path: '$createdUser'
+      }
+    }
   ])
 
   if (!rs) {
     throw new NotFoundError(`No post with id ${id}`)
   }
   res.status(StatusCodes.OK).json({
-    data: addVoteParams(rs[0], userId),
+    data: addVoteParams(rs[0], userId)
   })
 }
 
@@ -290,7 +306,7 @@ const getMedias = (files) => {
   return Array.isArray(files)
     ? files.map((item) => ({
         url: distributionDomain + '/' + item.key,
-        type: getType(item.mimetype),
+        type: getType(item.mimetype)
       }))
     : null
 }
@@ -325,21 +341,21 @@ const uploadPost = async (req, res) => {
     medias,
     createdBy,
     genres,
-    description,
+    description
   }
   const queryGenres = await validatePost(data)
 
   const rs = await Post.create(data)
   const createdUser = await User.findOne(
     {
-      _id: createdBy,
+      _id: createdBy
     },
     {
       role: 1,
       _id: 1,
       name: 1,
       email: 1,
-      avatar: 1,
+      avatar: 1
     }
   )
   const jsonRs = JSON.parse(JSON.stringify(rs))
@@ -347,7 +363,7 @@ const uploadPost = async (req, res) => {
   jsonRs.queryGenres = queryGenres
   addRecomPost(jsonRs._id, {
     ...data,
-    genres: queryGenres,
+    genres: queryGenres
   })
 
   res.status(StatusCodes.CREATED).json({ data: jsonRs })
@@ -368,14 +384,18 @@ const updatePostWithMedias = async (req, res) => {
     content,
     medias,
     genres,
-    description,
+    description
   }
   const queryGenres = await validatePost(data)
 
-  const rs = await Post.findByIdAndUpdate({ _id: id, createdBy: userId }, data, { new: true, runValidators: true })
+  const rs = await Post.findByIdAndUpdate(
+    { _id: id, createdBy: userId },
+    data,
+    { new: true, runValidators: true }
+  )
   updateRecomPost(id, {
     ...data,
-    genres: queryGenres,
+    genres: queryGenres
   })
   res.status(StatusCodes.OK).json({ data: rs })
 }
@@ -393,14 +413,18 @@ const updatePostBasic = async (req, res) => {
   const data = {
     content,
     genres,
-    description,
+    description
   }
   const queryGenres = await validatePost(data)
 
-  const rs = await Post.findByIdAndUpdate({ _id: id, createdBy: userId }, data, { new: true, runValidators: true })
+  const rs = await Post.findByIdAndUpdate(
+    { _id: id, createdBy: userId },
+    data,
+    { new: true, runValidators: true }
+  )
   updateRecomPost(id, {
     ...data,
-    genres: queryGenres,
+    genres: queryGenres
   })
   res.status(StatusCodes.OK).json({ data: rs })
 }
@@ -408,12 +432,12 @@ const updatePostBasic = async (req, res) => {
 const deletePost = async (req, res) => {
   const {
     user: { userId },
-    params: { id },
+    params: { id }
   } = req
 
   const rs = await Post.findByIdAndRemove({
     _id: id,
-    createdBy: userId,
+    createdBy: userId
   })
 
   if (!rs) {
@@ -437,5 +461,5 @@ module.exports = {
   disDownvote,
   getRecommends,
   scrutinize,
-  search,
+  search
 }
