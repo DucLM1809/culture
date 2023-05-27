@@ -1,4 +1,4 @@
-openapi: 3.0.3
+openapi: 3.0.3g
 swagger: 2.0
 info:
   title: vieritage
@@ -44,6 +44,12 @@ paths:
       parameters:
         - name: a
           in: query
+          schema:
+            type: string
+            example: ''
+        - name: id
+          in: path
+          required: true
           schema:
             type: string
             example: ''
@@ -267,7 +273,8 @@ paths:
               action: refuse
       parameters:
         - name: id
-          in: query
+          in: path
+          required: true
           schema:
             type: string
             example: 6471f8aaf18bff1740eb5d94
@@ -441,6 +448,12 @@ paths:
           schema:
             type: string
             example: ''
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            example: ''
       responses:
         '200':
           description: ''
@@ -539,6 +552,13 @@ paths:
               description: Hello world
               genres:
                 - 647004bd669d752ca5b40e96
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            example: unverified
       responses:
         '200':
           description: ''
@@ -557,6 +577,12 @@ paths:
           schema:
             example: ''
             type: string
+        - in: path
+          name: id
+          required: true
+          schema:
+            example: ''
+            type: string     
       requestBody:
         content:
           multipart/form-data:
@@ -584,6 +610,13 @@ paths:
       summary: Delete
       description: Delete
       operationId: delete1
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            example: ''
+            type: string
       responses:
         '200':
           description: ''
@@ -596,6 +629,13 @@ paths:
       summary: Upvote
       description: Upvote
       operationId: upvote1
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            example: ''
+            type: string
       responses:
         '200':
           description: ''
@@ -608,6 +648,13 @@ paths:
       summary: Disupvote
       description: Disupvote
       operationId: disupvote1
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            example: ''
+            type: string
       responses:
         '200':
           description: ''
@@ -620,6 +667,13 @@ paths:
       summary: Downvote
       description: Downvote
       operationId: downvote1
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            example: ''
+            type: string
       responses:
         '200':
           description: ''
@@ -632,6 +686,13 @@ paths:
       summary: Disdownvote
       description: Disdownvote
       operationId: disdownvote1
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            example: ''
+            type: string
       responses:
         '200':
           description: ''
@@ -675,7 +736,8 @@ paths:
               action: accept
       parameters:
         - name: id
-          in: query
+          in: path
+          required: true
           schema:
             type: string
             example: 6471f8aaf18bff1740eb5d94
@@ -721,6 +783,13 @@ paths:
       summary: Get genre
       description: Get genre
       operationId: getGenre
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            example: ''
+            type: string
       responses:
         '200':
           description: ''
@@ -767,6 +836,13 @@ paths:
                   example: Vũ đạo
             example:
               name: Vũ đạo
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            example: ''
+            type: string
       responses:
         '200':
           description: ''
@@ -779,6 +855,13 @@ paths:
       summary: Delete
       description: Delete
       operationId: delete2
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            example: ''
+            type: string
       responses:
         '200':
           description: ''
@@ -879,7 +962,8 @@ paths:
       operationId: deleteEvent
       parameters:
         - name: id
-          in: query
+          in: path
+          required: true
           schema:
             type: string
             example: 6471f8aaf18bff1740eb5d94
@@ -895,6 +979,13 @@ paths:
       summary: Get Event
       description: Get Event
       operationId: getEvent
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            example: ''
+            type: string
       responses:
         '200':
           description: ''
@@ -939,6 +1030,13 @@ paths:
               lat: 10.2
               long: 10.3
               title: Test 1
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            example: ''
+            type: string
       responses:
         '200':
           description: ''
@@ -1044,6 +1142,13 @@ paths:
       summary: Delete Question
       description: Delete Question
       operationId: deleteQuestion
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            example: ''
+            type: string
       responses:
         '200':
           description: ''
@@ -1096,6 +1201,13 @@ paths:
                 - isTrue: false
                   value: D
               name: Question 1
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            example: ''
+            type: string
       responses:
         '200':
           description: ''
@@ -1110,12 +1222,14 @@ paths:
       operationId: answerQuestion
       parameters:
         - name: id
-          in: query
+          in: path
+          required: true
           schema:
             type: string
             example: 6470902df73e7b1568c4c486
         - name: answerId
-          in: query
+          in: path
+          required: true
           schema:
             type: string
             example: 6470926cda72ad653c0c0cbe
