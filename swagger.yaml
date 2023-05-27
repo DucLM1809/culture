@@ -454,12 +454,6 @@ paths:
       summary: Upload post
       description: Upload post
       operationId: uploadPost
-      parameters:
-        - name: medias
-          in: header
-          schema:
-            type: string
-            example: ''
       requestBody:
         content:
           application/json:
