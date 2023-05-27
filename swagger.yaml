@@ -666,14 +666,15 @@ paths:
       responses:
         '200':
           description: ''
+          
     delete:
       security:
          - bearerAuth: []
       tags:
         - events
-      summary: Delete Events Copy
-      description: Delete Events Copy
-      operationId: deleteEventsCopy
+      summary: Delete Events 
+      description: Delete Events 
+      operationId: deleteEvents
       requestBody:
         content:
           application/json:
@@ -692,6 +693,18 @@ paths:
               ids:
                 - 64707353513f605acc873713
                 - 64707352513f605acc873711
+      responses:
+        '200':
+          description: ''
+  /api/v1/events/{id}:
+    delete:
+      security:
+         - bearerAuth: []
+      tags:
+        - events
+      summary: Delete Event
+      description: Delete Event
+      operationId: deleteEvent
       responses:
         '200':
           description: ''
@@ -751,18 +764,7 @@ paths:
       responses:
         '200':
           description: ''
-  /api/v1/events/{id}:
-    delete:
-      security:
-         - bearerAuth: []
-      tags:
-        - events
-      summary: Delete Event
-      description: Delete Event
-      operationId: deleteEvent
-      responses:
-        '200':
-          description: ''
+  
   /api/v1/questions:
     get:
       security:
@@ -856,6 +858,18 @@ paths:
         '200':
           description: ''
   /api/v1/questions/{id}:
+    delete:
+      security:
+         - bearerAuth: []
+      tags:
+        - questions
+      summary: Delete Question
+      description: Delete Question
+      operationId: deleteQuestion
+      responses:
+        '200':
+          description: ''
+  /api/v1/questions/{id}:
     put:
       security:
          - bearerAuth: []
@@ -904,18 +918,6 @@ paths:
                 - isTrue: false
                   value: D
               name: Question 1
-      responses:
-        '200':
-          description: ''
-  /api/v1/questions/{id}:
-    delete:
-      security:
-         - bearerAuth: []
-      tags:
-        - questions
-      summary: Delete Question
-      description: Delete Question
-      operationId: deleteQuestion
       responses:
         '200':
           description: ''
