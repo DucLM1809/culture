@@ -14,6 +14,7 @@ const {
   getAllPostsOfUser,
   getRecommends,
   scrutinize,
+  search,
 } = require('../controllers/post')
 const { uploadFileMs3 } = require('../s3')
 
@@ -27,6 +28,7 @@ router.route('/downvote/:id').post(downvote)
 router.route('/disDownvote/:id').post(disDownvote)
 router.route('/recommend').get(getRecommends)
 router.route('/scrutinize/:id').post(scrutinize)
+router.route('/search').get(search)
 router.route('/').get(getAllPostsOfUser)
 router.route('/:id').get(getPost)
 

@@ -6,7 +6,15 @@ const ObjectId = require('mongoose').Types.ObjectId
 const { StatusCodes } = require('http-status-codes')
 const { BadRequestError, NotFoundError, UnauthenticatedError } = require('../errors')
 const { getVoteFuncs, addVoteParams, checkDuplicateGenre } = require('../utils/funcShortPost')
-const { addRecomShort, updateRecomShort, deleteRecom, setRecomViewPortion, getRecom, refuse } = require('../recombee')
+const {
+  addRecomShort,
+  updateRecomShort,
+  deleteRecom,
+  setRecomViewPortion,
+  getRecom,
+  refuse,
+  searchRecom,
+} = require('../recombee')
 const { verify } = require('../recombee')
 
 // eslint-disable-next-line no-undef
@@ -469,6 +477,65 @@ const viewShort = async (req, res) => {
   res.status(StatusCodes.OK).json({ data: rs })
 }
 
+const search = async (req, res) => {
+  const requestUser = req.user.userId
+  const query = req.query.query
+  let recoms
+  try {
+    recoms = await searchRecom(requestUser, query, 'short')
+  } catch (error) {
+    console.log('searchRecom', error)
+  }
+
+  const itemIds = recoms.recomms.map((item) => ObjectId(item.id))
+  console.log(itemIds)
+
+  const rs = await Short.aggregate([
+    {
+      $match: {
+        _id: {
+          $in: itemIds,
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'createdBy',
+        foreignField: '_id',
+        as: 'createdUser',
+      },
+    },
+    {
+      $lookup: {
+        from: 'genres',
+        localField: 'genres',
+        foreignField: '_id',
+        as: 'queryGenres',
+      },
+    },
+    {
+      $unset: 'createdUser.password',
+    },
+    {
+      $unwind: {
+        path: '$createdUser',
+      },
+    },
+  ])
+
+  if (!rs) {
+    throw new NotFoundError(`Invalid recommend id`)
+  }
+
+  const jsonRs = rs.map((item) => addVoteParams(item, requestUser, true))
+
+  res.status(StatusCodes.OK).json({
+    recommId: recoms.recommId,
+    data: jsonRs,
+  })
+}
+
 const [upvote, disUpvote, downvote, disDownvote] = getVoteFuncs(Short)
 
 module.exports = {
@@ -486,4 +553,5 @@ module.exports = {
   setShortViewPortion,
   scrutinize,
   getRecommends,
+  search,
 }
