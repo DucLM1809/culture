@@ -647,7 +647,7 @@ paths:
       responses:
         '200':
           description: ''
-  /api/v1/posts/scrutinize/{}:
+  /api/v1/posts/scrutinize/{id}:
     post:
       security:
          - bearerAuth: []
