@@ -6,6 +6,7 @@ info:
   contact: {}
 servers:
   - url: http://localhost:5000
+  - url: https://veritage-culture.onrender.com/
 components:
  securitySchemes:
   bearerAuth:
