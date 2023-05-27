@@ -265,6 +265,12 @@ paths:
                   example: refuse
             example:
               action: refuse
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: string
+            example: unverified
       responses:
         '200':
           description: ''
@@ -667,6 +673,12 @@ paths:
                   example: accept
             example:
               action: accept
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: string
+            example: unverified
       responses:
         '200':
           description: ''
@@ -865,6 +877,12 @@ paths:
       summary: Delete Event
       description: Delete Event
       operationId: deleteEvent
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: string
+            example: 6471f8aaf18bff1740eb5d94
       responses:
         '200':
           description: ''
