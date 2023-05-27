@@ -239,11 +239,11 @@ const getRecom = async (userId, type, max = 0) => {
       scenario = 'young-user-short'
       break
     case 'unverified-short':
-      count = 1
+      count = 5
       scenario = 'aged-user-short'
       break
     case 'unverified-post':
-      count = 1
+      count = 5
       scenario = 'aged-user'
       break
     default:
