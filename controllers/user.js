@@ -6,7 +6,7 @@ const { BadRequestError, NotFoundError } = require('../errors')
 const getUser = async (req, res) => {
   const user = await User.findById(req.user.userId)
 
-  const { _id, role, name, email, avatar, points } = user
+  const { _id, role, name, email, avatar, points, dob } = user
 
   res.status(StatusCodes.OK).json({
     data: {
@@ -15,7 +15,8 @@ const getUser = async (req, res) => {
       name,
       email,
       avatar,
-      points
+      points,
+      dob
     }
   })
 }
@@ -39,7 +40,8 @@ const updateUser = async (req, res) => {
       name,
       email,
       avatar,
-      points
+      points,
+      dob
     }
   })
 }
