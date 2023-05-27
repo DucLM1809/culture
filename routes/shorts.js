@@ -20,9 +20,9 @@ const {
 } = require('../controllers/short')
 const { uploadFileMs3 } = require('../s3')
 
-router.route('/upload').post(uploadFileMs3.single('short'), uploadShort)
+router.route('/upload').post(uploadShort)
 router.route('/update-basic/:id').put(updateShortBasic)
-router.route('/update-with-video/:id').put(uploadFileMs3.single('short'), updateShortWithVideo)
+router.route('/update-with-video/:id').put(updateShortWithVideo)
 router.route('/delete/:id').delete(deleteShort)
 router.route('/upvote/:id').post(upvote)
 router.route('/disupvote/:id').post(disUpvote)

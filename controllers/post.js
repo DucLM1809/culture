@@ -330,14 +330,10 @@ const validatePost = async (data) => {
 
 const uploadPost = async (req, res) => {
   const { description, content } = req.body
-  const medias = getMedias(req.files)
+  const medias = req.body.medias
   const createdBy = req.user.userId
-  let genres
-  try {
-    genres = JSON.parse(req.body.genres || '')
-  } catch (error) {
-    genres = req.body.genres || ''
-  }
+  let genres = req.body.genres || ''
+
   const data = {
     content,
     medias,
@@ -374,7 +370,7 @@ const uploadPost = async (req, res) => {
 const updatePostWithMedias = async (req, res) => {
   const id = req.params.id
   const { description, content } = req.body
-  const medias = getMedias(req.files)
+  const medias = req.body.medias
   const userId = req.user.userId
   let genres
   try {

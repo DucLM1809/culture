@@ -18,7 +18,7 @@ const {
 } = require('../controllers/post')
 const { uploadFileMs3 } = require('../s3')
 
-router.route('/upload').post(uploadFileMs3.array('medias', 4), uploadPost)
+router.route('/upload').post(uploadPost)
 router.route('/update-basic/:id').put(updatePostBasic)
 router.route('/update-with-medias/:id').put(uploadFileMs3.array('medias', 4), updatePostWithMedias)
 router.route('/delete/:id').delete(deletePost)

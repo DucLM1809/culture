@@ -225,7 +225,7 @@ const getShort = async (req, res) => {
 const uploadShort = async (req, res) => {
   const duration = Number(req.body.duration)
   const description = req.body.description
-  const url = distributionDomain + '/' + req.file.key
+  const url = req.body.url
   const createdBy = req.user.userId
   let genres
   try {
@@ -284,7 +284,7 @@ const updateShortWithVideo = async (req, res) => {
   const id = req.params.id
   const duration = Number(req.body.duration)
   const description = req.body.description
-  const url = distributionDomain + '/' + req.file.key
+  const url = req.body.key
   const userId = req.user.userId
   let genres
   try {
