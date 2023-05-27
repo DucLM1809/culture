@@ -85,8 +85,6 @@ const answerQuestion = async (req, res) => {
     users: { $in: [req.user.userId] }
   })
 
-  console.log(isUserAnswer)
-
   if (isUserAnswer.length) {
     throw new BadRequestError('User answered this question!')
   }
@@ -105,6 +103,8 @@ const answerQuestion = async (req, res) => {
     await User.findByIdAndUpdate(req.user.userId, {
       $inc: { points: 1 }
     })
+  } else {
+    res.status(StatusCodes.OK).json(false)
   }
 
   res.status(StatusCodes.OK).json(true)
