@@ -99,15 +99,14 @@ const answerQuestion = async (req, res) => {
       String(answer._id) === String(req.params.answerId) && answer.isTrue
   )
 
+  if (!isAnswerTrue) {
+    res.status(StatusCodes.OK).json(false)
+  }
+
   await User.findByIdAndUpdate(req.user.userId, {
     $inc: { points: 1 }
   })
-
-  if (isAnswerTrue) {
-    res.status(StatusCodes.OK).json(true)
-  } else {
-    res.status(StatusCodes.OK).json(false)
-  }
+  res.status(StatusCodes.OK).json(true)
 }
 
 module.exports = {
