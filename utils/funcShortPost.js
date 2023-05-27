@@ -16,6 +16,7 @@ const getVoteFuncs = (Model) => {
   const upvote = async (req, res) => {
     const userId = req.user.userId
     const id = req.params.id
+    const recommId = req.body.recommId
 
     if (await checkUpvote(id, userId)) {
       throw new BadRequestError(`User already upvoted`)
@@ -37,7 +38,7 @@ const getVoteFuncs = (Model) => {
     if (!rs) {
       throw new NotFoundError(`No item with id ${id}`)
     }
-    addRecomRating(userId, id, 'upvote')
+    addRecomRating(userId, id, 'upvote', recommId)
 
     res.status(StatusCodes.OK).json({ data: rs })
   }
@@ -82,6 +83,7 @@ const getVoteFuncs = (Model) => {
   const downvote = async (req, res) => {
     const userId = req.user.userId
     const id = req.params.id
+    const recommId = req.body.recommId
 
     if (await checkDownvote(id, userId)) {
       throw new BadRequestError(`User already downvoted`)
@@ -103,7 +105,7 @@ const getVoteFuncs = (Model) => {
     if (!rs) {
       throw new NotFoundError(`No item with id ${id}`)
     }
-    addRecomRating(userId, id, 'downvote')
+    addRecomRating(userId, id, 'downvote', recommId)
 
     res.status(StatusCodes.OK).json({ data: rs })
   }

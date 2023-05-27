@@ -82,8 +82,10 @@ const getRecommends = async (req, res) => {
 
   const rs = await Short.aggregate([
     {
-      $project: {
-        _id: itemIds,
+      $match: {
+        _id: {
+          $in: itemIds,
+        },
       },
     },
     {
@@ -111,7 +113,6 @@ const getRecommends = async (req, res) => {
       },
     },
   ])
-  rs.recommId = recoms.recommId
 
   if (!rs) {
     throw new NotFoundError(`Invalid recommend id`)
@@ -120,11 +121,14 @@ const getRecommends = async (req, res) => {
 
   const jsonRs = rs.map((item) => addVoteParams(item, requestUser, true))
 
-  res.status(StatusCodes.OK).json({ data: jsonRs })
+  res.status(StatusCodes.OK).json({
+    recommId: recoms.recommId,
+    data: jsonRs,
+  })
 }
 
 const scrutinize = async (req, res) => {
-  const id = req.query.id
+  const id = req.params.id
   const role = req.user.role || 'USER'
   const action = req.body.action
 
@@ -134,7 +138,7 @@ const scrutinize = async (req, res) => {
 
   let value = action === 'accept' ? 'acceptCount' : 'refuseCount'
 
-  const rs = Short.findByIdAndUpdate(
+  const rs = await Short.findByIdAndUpdate(
     {
       _id: id,
     },
@@ -142,13 +146,32 @@ const scrutinize = async (req, res) => {
       $inc: {
         [value]: 1,
       },
-    }
+    },
+    { new: true, runValidators: true }
   )
 
   if (rs.acceptCount >= 1) {
     verify(id)
+    await Short.findByIdAndUpdate(
+      {
+        _id: id,
+      },
+      {
+        checked: true,
+      },
+      { new: true, runValidators: true }
+    )
   } else if (rs.refuseCount >= 1) {
     refuse(id)
+    await Short.findByIdAndUpdate(
+      {
+        _id: id,
+      },
+      {
+        isRefused: true,
+      },
+      { new: true, runValidators: true }
+    )
   }
 
   res.status(StatusCodes.OK).json({ message: 'Success' })

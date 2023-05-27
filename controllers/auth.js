@@ -11,6 +11,7 @@ const test = async (req, res) => {
   //     .utc()
   //     .toDate()
   // )
+  res.send('Hello')
 }
 
 const register = async (req, res) => {
@@ -20,7 +21,7 @@ const register = async (req, res) => {
   const age = today.diff(birthday, 'years')
   const user = await User.create({
     ...req.body,
-    role: age > 40 ? 'AGED' : 'USER'
+    role: age > 40 ? 'AGED' : 'USER',
   })
   addRecomUser(user._id)
   const token = user.createJWT()
@@ -46,11 +47,11 @@ const login = async (req, res) => {
   }
 
   const token = user.createJWT()
-  res.status(StatusCodes.OK).json({ user: { name: user.name }, token })
+  res.status(StatusCodes.OK).json({ user: { name: user.name, role: user.role }, token })
 }
 
 module.exports = {
   register,
   login,
-  test
+  test,
 }

@@ -26,7 +26,7 @@ router.route('/disupvote/:id').post(disUpvote)
 router.route('/downvote/:id').post(downvote)
 router.route('/disDownvote/:id').post(disDownvote)
 router.route('/recommend').get(getRecommends)
-router.route('/scrutinize/:id').get(scrutinize)
+router.route('/scrutinize/:id').post(scrutinize)
 router.route('/').get(getAllPostsOfUser)
 router.route('/:id').get(getPost)
 

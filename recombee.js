@@ -168,7 +168,7 @@ const deleteRecomUser = async (itemId, max = 0) => {
   })
 }
 
-const addRecomRating = async (userId, itemId, type, recommId = 0, max = 0) => {
+const addRecomRating = async (userId, itemId, type, recommId = undefined, max = 0) => {
   if (max >= 3) {
     return
   }
@@ -179,7 +179,7 @@ const addRecomRating = async (userId, itemId, type, recommId = 0, max = 0) => {
   const rqsOptions = {
     cascadeCreate: true,
   }
-  if (recommId !== 0) {
+  if (!recommId) {
     rqsOptions.recommId = recommId
   }
 
@@ -206,7 +206,7 @@ const deleteRecomRating = async (userId, itemId, max = 0) => {
   })
 }
 
-const setRecomViewPortion = async (userId, itemId, portion, recommId = 0, max = 0) => {
+const setRecomViewPortion = async (userId, itemId, portion, recommId = undefined, max = 0) => {
   if (max >= 3) {
     return
   }
@@ -214,7 +214,7 @@ const setRecomViewPortion = async (userId, itemId, portion, recommId = 0, max = 
   const rqsOptions = {
     cascadeCreate: true,
   }
-  if (recommId !== 0) {
+  if (!recommId) {
     rqsOptions.recommId = recommId
   }
 

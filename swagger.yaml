@@ -211,6 +211,43 @@ paths:
       responses:
         '200':
           description: ''
+  /api/v1/shorts/recommend:
+    get:
+      tags:
+        - shorts
+      summary: Get recommendation
+      description: Get recommendation
+      operationId: getRecommendation
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+            example: unverified
+      responses:
+        '200':
+          description: ''
+  /api/v1/shorts/scrutinize/{id}:
+    post:
+      tags:
+        - shorts
+      summary: Scrutinize
+      description: Scrutinize
+      operationId: scrutinize
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+                  example: refuse
+            example:
+              action: refuse
+      responses:
+        '200':
+          description: ''
   /api/v1/shorts/view/{id}:
     post:
       security:
@@ -525,6 +562,43 @@ paths:
       summary: Disdownvote
       description: Disdownvote
       operationId: disdownvote1
+      responses:
+        '200':
+          description: ''
+  /api/v1/posts/recommend:
+    get:
+      tags:
+        - post
+      summary: Get recommendation
+      description: Get recommendation
+      operationId: getRecommendation1
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+            example: unverified
+      responses:
+        '200':
+          description: ''
+  /api/v1/posts/scrutinize/{}:
+    post:
+      tags:
+        - post
+      summary: Scrutinize
+      description: Scrutinize
+      operationId: scrutinize1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+                  example: accept
+            example:
+              action: accept
       responses:
         '200':
           description: ''
