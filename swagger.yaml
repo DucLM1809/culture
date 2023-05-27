@@ -270,7 +270,7 @@ paths:
           in: query
           schema:
             type: string
-            example: unverified
+            example: 6471f8aaf18bff1740eb5d94
       responses:
         '200':
           description: ''
@@ -678,7 +678,7 @@ paths:
           in: query
           schema:
             type: string
-            example: unverified
+            example: 6471f8aaf18bff1740eb5d94
       responses:
         '200':
           description: ''
