@@ -61,19 +61,32 @@ paths:
       operationId: uploadShort
       requestBody:
         content:
-          multipart/form-data:
+          application/json:
             schema:
               type: object
               properties:
+                description:
+                  type: string
+                  example: ab
                 duration:
+                  type: number
+                  example: 2000
+                genres:
+                  type: array
+                  items:
+                    type: string
+                    example: 64700d67153bde3a06ecc6f1
+                  example:
+                    - 64700d67153bde3a06ecc6f1
+                url:
                   type: string
-                  example: '1234'
-                genres[]:
-                  type: string
-                  example: '["{id}"]'
-                short:
-                  type: string
-                  format: binary
+                  example: d2xnk96i50sp3r.cloudfront.net/1685182087213
+            example:
+              description: ab
+              duration: 2000
+              genres:
+                - 64700d67153bde3a06ecc6f1
+              url: d2xnk96i50sp3r.cloudfront.net/1685182087213
       responses:
         '200':
           description: ''
@@ -104,7 +117,7 @@ paths:
       responses:
         '200':
           description: ''
-  /api/v1/shorts/update-with-video/{id}:
+  /api/v1/shorts/update-with-video/${id}:
     put:
       security:
          - bearerAuth: []
@@ -442,22 +455,48 @@ paths:
             example: ''
       requestBody:
         content:
-          multipart/form-data:
+          application/json:
             schema:
               type: object
               properties:
                 content:
                   type: string
-                  example: abc
+                  example: bellow
                 description:
                   type: string
-                  example: def
-                genres[]:
-                  type: string
-                  example: '["6470048f669d752ca5b40e94", "647004bd669d752ca5b40e96"]'
+                  example: a
+                genres:
+                  type: array
+                  items:
+                    type: string
+                    example: 6470048f669d752ca5b40e94
+                  example:
+                    - 6470048f669d752ca5b40e94
                 medias:
-                  type: string
-                  format: binary
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        example: image
+                      url:
+                        type: string
+                        example: >-
+                          https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885_1280.jpg
+                  example:
+                    - type: image
+                      url: >-
+                        https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885_1280.jpg
+            example:
+              content: bellow
+              description: a
+              genres:
+                - 6470048f669d752ca5b40e94
+              medias:
+                - type: image
+                  url: >-
+                    https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885_1280.jpg
       responses:
         '200':
           description: ''
@@ -500,33 +539,33 @@ paths:
   /api/v1/posts/update-with-medias/{id}:
     put:
       security:
-         - bearerAuth: []
+        - bearerAuth: []
       tags:
         - post
-      summary: Updata with medias
-      description: Updata with medias
-      operationId: updataWithMedias
+      summary: Update with medias
+      description: Update with medias
+      operationId: updateWithMedias
       parameters:
-        - name: medias
-          in: header
+        - in: header
+          name: medias
           schema:
-            type: string
             example: ''
+            type: string
       requestBody:
         content:
           multipart/form-data:
             schema:
-              type: object
               properties:
                 content:
-                  type: string
                   example: Content
+                  type: string
                 description:
-                  type: string
                   example: desciprxza
-                medias:
                   type: string
+                medias:
                   format: binary
+                  type: string
+              type: object
       responses:
         '200':
           description: ''
