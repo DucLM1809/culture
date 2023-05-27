@@ -132,9 +132,9 @@ paths:
         '200':
           description: ''
   /api/v1/shorts/delete/{id}:
-    security:
-         - bearerAuth: []
     delete:
+      security:
+         - bearerAuth: []
       tags:
         - shorts
       summary: Delete
@@ -193,6 +193,8 @@ paths:
           description: ''
   /api/v1/shorts/set-view-portion/{id}:
     post:
+      security:
+         - bearerAuth: []
       tags:
         - shorts
       summary: Set view portion
@@ -214,6 +216,8 @@ paths:
           description: ''
   /api/v1/shorts/recommend:
     get:
+      security:
+         - bearerAuth: []
       tags:
         - shorts
       summary: Get recommendation
@@ -230,6 +234,8 @@ paths:
           description: ''
   /api/v1/shorts/scrutinize/{id}:
     post:
+      security:
+         - bearerAuth: []
       tags:
         - shorts
       summary: Scrutinize
