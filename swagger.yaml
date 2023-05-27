@@ -1090,13 +1090,24 @@ paths:
       summary: Answer Question
       description: Answer Question
       operationId: answerQuestion
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: string
+            example: 6470902df73e7b1568c4c486
+        - name: answerId
+          in: query
+          schema:
+            type: string
+            example: 6470926cda72ad653c0c0cbe
       responses:
         '200':
           description: ''
   /api/v1/questions/random:
     get:
       security:
-         - bearerAuth: []
+        - bearerAuth: []
       tags:
         - questions
       summary: Get Random Question
