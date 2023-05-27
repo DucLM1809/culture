@@ -232,10 +232,10 @@ const getRecom = async (userId, type, max = 0) => {
   switch (type) {
     case 'verified-post':
       scenario = 'young-user'
-      count = 10
+      count = 100
       break
     case 'verified-short':
-      count = 10
+      count = 100
       scenario = 'young-user-short'
       break
     case 'unverified-short':
