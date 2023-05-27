@@ -85,7 +85,7 @@ const answerQuestion = async (req, res) => {
     users: { $in: [req.user.userId] }
   })
 
-  if (isUserAnswer.length) {
+  if (isUserAnswer.find((item) => String(item._id) === String(req.params.id))) {
     throw new BadRequestError('User answered this question!')
   }
 
